@@ -1,0 +1,14 @@
+module org.example.demo {
+    requires javafx.controls;
+    requires javafx.fxml;
+
+
+    opens org.example.demo to javafx.fxml;
+    exports org.example.demo;
+    exports dsa_ca1;
+    opens dsa_ca1 to javafx.fxml;
+    exports dsa_ca1.controllers;
+    opens dsa_ca1.controllers to javafx.fxml;
+    exports dsa_ca1.main;
+    opens dsa_ca1.main to javafx.fxml;
+}
