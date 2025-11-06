@@ -1,5 +1,6 @@
 package dsa_ca1.models;
 
+
 public class GoodItems {
     private String description;
     private String unitSize;
