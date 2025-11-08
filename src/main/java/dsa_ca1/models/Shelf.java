@@ -24,9 +24,9 @@ public class Shelf {
     public void setItems(LinkedList<GoodItems> items) {
         this.items = items;
     }
-    // methods
+    // methods used from linkedlist
     public void addItem(GoodItems item) {
-        items.insertAtPosition(item, 0); // you can choose position logic
+        items.insertAtPosition(item, 0);
     }
 
     public void removeItem(int position) {
@@ -34,11 +34,11 @@ public class Shelf {
     }
 
     public boolean searchItem(GoodItems item) {
-        return items.searchItem(item); // simply calls your LinkedList search
+        return items.searchItem(item);
     }
 
     public void printItems() {
-        items.printList(items.head); // uses your LinkedList print method
+        items.printList(items.head);
     }
 }
 
