@@ -40,5 +40,13 @@ public class Shelf {
     public void printItems() {
         items.printList(items.head);
     }
+
+    @Override
+    public String toString() {
+        return "Shelf{" +
+                "shelfNumber=" + shelfNumber +
+                ", items=" + items +
+                '}';
+    }
 }
 
