@@ -63,6 +63,14 @@ public class Aisle {
         shelves.printList(shelves.head);
     }
 
+    public LinkedList<Shelf> getShelves() {
+        return shelves;
+    }
+
+    public void setShelves(LinkedList<Shelf> shelves) {
+        this.shelves = shelves;
+    }
+
     @Override
     public String toString() {
         return "Aisle{" +
