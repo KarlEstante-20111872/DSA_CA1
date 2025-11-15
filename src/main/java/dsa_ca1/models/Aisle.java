@@ -1,13 +1,17 @@
 package dsa_ca1.models;
 
 public class Aisle {
-    private String aisleName;
-    private String aisleNumber;
+    private String aisleName;       // e.g., "Cheese", "Bread"
+    private int length;             // dimensions in meters or cm
+    private int width;
+    private String temperature;     // "Unrefrigerated", "Refrigerated", "Frozen"
     private LinkedList<Shelf> shelves;
 
-    public Aisle(String aisleName, String aisleNumber, LinkedList<Shelf> shelves) {
+    public Aisle(String aisleName, String temperature, int length, int width, LinkedList<Shelf> shelves) {
         this.aisleName = aisleName;
-        this.aisleNumber = aisleNumber;
+        this.temperature = temperature;
+        this.length = length;
+        this.width = width;
         this.shelves = shelves;
     }
 
@@ -19,12 +23,28 @@ public class Aisle {
         this.aisleName = aisleName;
     }
 
-    public String getAisleNumber() {
-        return aisleNumber;
+    public String getTemperature() {
+        return temperature;
     }
 
-    public void setAisleNumber(String aisleNumber) {
-        this.aisleNumber = aisleNumber;
+    public void setTemperature(String temperature) {
+        this.temperature = temperature;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    public void setWidth(int width) {
+        this.width = width;
+    }
+
+    public int getLength() {
+        return length;
+    }
+
+    public void setLength(int length) {
+        this.length = length;
     }
 
     public void addShelf(Shelf shelf) {
@@ -46,8 +66,11 @@ public class Aisle {
     @Override
     public String toString() {
         return "Aisle{" +
-                "aisleNumber='" + aisleNumber + '\'' +
-                ", aisleName='" + aisleName + '\'' +
+                "aisleName='" + aisleName + '\'' +
+                ", length=" + length +
+                ", width=" + width +
+                ", temperature='" + temperature + '\'' +
+                ", shelves=" + shelves +
                 '}';
     }
 }

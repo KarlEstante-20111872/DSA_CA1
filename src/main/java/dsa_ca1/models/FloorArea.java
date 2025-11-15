@@ -2,11 +2,13 @@ package dsa_ca1.models;
 
 public class FloorArea {
     private String name;
+    private int floor;
     private LinkedList<Aisle> aisles;
 
-    public FloorArea(String name, LinkedList<Aisle> aisle) {
+    public FloorArea(String name, int floor) {
         this.name = name;
-        this.aisles = aisles;
+        this.floor = floor;
+        this.aisles = new LinkedList<>();
     }
 
     public String getName() {
@@ -17,15 +19,23 @@ public class FloorArea {
         this.name = name;
     }
 
-    public void addFloor(Aisle aisle) {
-        aisles.insertAtPosition(aisle,0);
+    public int getFloor() {
+        return floor;
     }
 
-    public void removeFloor(int position) {
+    public void setFloor(int floor) {
+        this.floor = floor;
+    }
+
+    public void addAisle(Aisle aisle) {
+        aisles.insertAtPosition(aisle, 0 );
+    }
+
+    public void removeAisle(int position) {
         aisles.deleteAtPosition(position);
     }
 
-    public boolean searchFloor(Aisle aisle) {
+    public boolean searchAisle(Aisle aisle) {
         return aisles.searchItem(aisle);
     }
 
@@ -33,10 +43,16 @@ public class FloorArea {
         aisles.printList(aisles.head);
     }
 
+    public LinkedList<Aisle> getAisles() {
+        return aisles;
+    }
+
     @Override
     public String toString() {
         return "FloorArea{" +
                 "name='" + name + '\'' +
+                ", floor=" + floor +
+                ", aisles=" + aisles +
                 '}';
     }
 }
