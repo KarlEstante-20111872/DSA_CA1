@@ -48,11 +48,11 @@ public class Aisle {
     }
 
     public void addShelf(Shelf shelf) {
-        shelves.insertAtPosition(shelf, 0);
+        shelves.add(shelf);
     }
 
-    public void removeShelf(int position) {
-        shelves.deleteAtPosition(position);
+    public void removeShelf(Shelf shelf) {
+        shelves.deleteByValue(shelf);
     }
 
     public boolean searchShelf(Shelf shelf) {

@@ -26,11 +26,11 @@ public class Shelf {
     }
     // methods used from linkedlist
     public void addItem(GoodItems item) {
-        items.insertAtPosition(item, 0);
+        items.add(item);
     }
 
-    public void removeItem(int position) {
-        items.deleteAtPosition(position);
+    public void removeItem(GoodItems item) {
+        items.deleteByValue(item);
     }
 
     public boolean searchItem(GoodItems item) {

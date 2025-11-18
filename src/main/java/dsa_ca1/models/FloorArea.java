@@ -28,11 +28,11 @@ public class FloorArea {
     }
 
     public void addAisle(Aisle aisle) {
-        aisles.insertAtPosition(aisle, 0 );
+        aisles.add(aisle);
     }
 
-    public void removeAisle(int position) {
-        aisles.deleteAtPosition(position);
+    public void removeAisle(Aisle aisle) {
+        aisles.deleteByValue(aisle);
     }
 
     public boolean searchAisle(Aisle aisle) {

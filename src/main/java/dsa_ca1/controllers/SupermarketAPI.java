@@ -19,11 +19,11 @@ public class SupermarketAPI {
     }
 
     public void addFloorArea(FloorArea FA) {
-        floorAreas.insertAtPosition(FA, 0);
+        floorAreas.add(FA);
     }
 
-    public void removeFloorArea(int position) {
-        floorAreas.deleteAtPosition(position);
+    public void removeFloorArea(FloorArea FA) {
+        floorAreas.deleteByValue(FA);
     }
 
     public boolean searchFloorArea(FloorArea fa) {
@@ -52,16 +52,17 @@ public class SupermarketAPI {
     public void removeGoodItem(String floorName, String aisleName, int shelfNumber, String itemName, int quantity) {
         boolean removed = false;
 
+        outerLoop: // label for breaking out of all loops once removal is done
         for (Node<FloorArea> FLOOR = floorAreas.head; FLOOR != null; FLOOR = FLOOR.next) {
             if (FLOOR.data.getName().equals(floorName)) {
                 // as each floor is traversed it checks the name, if it doesnt match, it keeps going until
-                //we find the floor used for the good item (same as we go down)
+                // we find the floor used for the good item (same as we go down)
                 for (Node<Aisle> AISLE = FLOOR.data.getAisles().head; AISLE != null; AISLE = AISLE.next) {
                     if (AISLE.data.getAisleName().equals(aisleName)) {
                         for (Node<Shelf> SHELF = AISLE.data.getShelves().head; SHELF != null; SHELF = SHELF.next) {
                             if (SHELF.data.getShelfNumber() == shelfNumber) {
                                 //^ same thing as before, traverse through the classes
-                                Node<GoodItems> prev = null; // < used ffor removal of item
+                                Node<GoodItems> prev = null; // < used for removal of item
                                 for (Node<GoodItems> ITEM = SHELF.data.getItems().head; ITEM != null; ITEM = ITEM.next) {
                                     if (ITEM.data.getDescription().equals(itemName)) {
                                         if (ITEM.data.getQuantity() > quantity) {
@@ -74,11 +75,10 @@ public class SupermarketAPI {
                                                 prev.next = ITEM.next; // we link the node before the removed one to the one
                                             }}                        // after it essentially cutting it out
                                         removed = true;
-                                        // ^ here is the ACTUAL removal via prev like the linkd list
+                                        // ^ here is the ACTUAL removal via prev like the linked list
                                         System.out.println("Removed " + quantity + " of " + itemName + " from Shelf " + shelfNumber);
-                                        break; // only exits ITEM loop after removal
+                                        break outerLoop; // break out of all loops since item is removed
                                     }prev = ITEM;}}}}}}}}
-
     public int countFloorAreas() {
         int count = 0;
         for (Node<FloorArea> f = floorAreas.head; f != null; f = f.next) {
@@ -109,25 +109,30 @@ public class SupermarketAPI {
 
     public void smartAdd(GoodItems randomitem) {
         // identical items to put with
+        outerLoop: // label to exit all loops once item is added
         for (Node<FloorArea> F = floorAreas.head; F != null; F = F.next) {
             for (Node<Aisle> A = F.data.getAisles().head; A != null; A = A.next) {
                 for (Node<Shelf> S = A.data.getShelves().head; S != null; S = S.next) {
                     for (Node<GoodItems> I = S.data.getItems().head; I != null; I = I.next) {
                         if (I.data.getDescription().equals(randomitem.getDescription())) {
                             I.data.setQuantity(I.data.getQuantity() + randomitem.getQuantity());
-                            return;}}}}}
+                            break outerLoop; // exit all loops after adding
+                        }}}}}
         // identical temperature to put with
+        outerTemp: // separate label for this second search
         for (Node<FloorArea> F = floorAreas.head; F != null; F = F.next) {
             for (Node<Aisle> A = F.data.getAisles().head; A != null; A = A.next) {
                 if (A.data.getTemperature().equals(randomitem.getStorageTemperature()) && A.data.getShelves().head != null) {
                     A.data.getShelves().head.data.addItem(randomitem);
-                    return;}}}
+                    break outerTemp; // exit once added
+                    }}}
         // any place it belongs
-        if (floorAreas.head != null && floorAreas.head.data.getAisles().head != null && floorAreas.head.data.getAisles().head.data.getShelves().head != null) {
+        if (floorAreas.head != null && floorAreas.head.data.getAisles().head != null
+                && floorAreas.head.data.getAisles().head.data.getShelves().head != null) {
             floorAreas.head.data.getAisles().head.data.getShelves().head.data.addItem(randomitem);
             return;}
-        System.out.println("tossed into available shelf!");
-    }
+        System.out.println("tossed into available shelf!");}
+
     // from last year programming XStream library
     public void load() throws Exception {
         //list of classes for XML deserialization

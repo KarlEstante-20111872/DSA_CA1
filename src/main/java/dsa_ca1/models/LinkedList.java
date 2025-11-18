@@ -10,47 +10,43 @@ public class LinkedList<T> {
     //this class will be full of comments to understand linkedlists and its
     //functions within the project for guidance towards the interview and future use.
 
-    public void insertAtPosition(T data, int position) {
-        Node<T> newNode = new Node<>(data);//creation
-        //insertion at head
-        if (position == 0) {
-            newNode.next = head;
+    public void add(T value) {
+        Node<T> newNode = new Node<>(value);
+
+        if (head == null) {
             head = newNode;
-            System.out.println("item has been added to the list");
             return;
         }
-        //traversal process
-        Node<T> prev = head;
-        for (int i = 0; i < position - 1; i++) {
-            prev = prev.next;
+        Node<T> current = head;
+        while (current.next != null) {
+            current = current.next;
         }
-        //insertion process
-        newNode.next = prev.next;
-        prev.next = newNode;        //newNode.next points to the same value as prev.next which is after the new node
-        //then you replace prev.next with newNode value
-        System.out.println("item has been added");
+
+        current.next = newNode;
     }
 
-    public void deleteAtPosition(int position) {
-        //deleting the head of the list
-        if (position == 0) {
-            Node temp = head;  //stores the head in a temporary variable
-            head = head.next;  //this moves the head to the next node
-            temp.next = null;  //this gets rid of the values after the deleted value in the temporary variable
-            System.out.println("You removed: " + temp.data + " from the front of the list!");
-            return;
+    //deletion method
+    public boolean deleteByValue(T value) {
+        if (head == null) {
+            System.out.println("List is empty.");
+            return false;
         }
-        //this uses a for loop to traversal to the node before the node needed for deletion
-        Node prev = head;
-        for (int i = 0; i < position - 1; i++) { //the position before the item being removed is shown here
-            prev = prev.next;
+        if (head.data.equals(value)) {
+            head = head.next;
+            System.out.println("Removed: " + value);
+            return true;
         }
-        //removal process
-        Node removedNode = prev.next;
-        prev.next = removedNode.next;   //this makes the previous node point to the .next node so you skip the node removed
-        removedNode.next = null;        //could have done head.next=head.next.next but id like to print the value for clarity
-        System.out.println("You removed: " + removedNode.data);
+        Node<T> removal = head;
+        while (removal.next != null) {
+            if (removal.next.data.equals(value)) {
+                removal.next = removal.next.next;
+                System.out.println("Removed: " + value);
+                return true;
+            }
+            removal = removal.next;}
+        return false;
     }
+
     public boolean searchItem(T data) {
         Node<T> poop = head; //starts at the head
         while (poop != null) {

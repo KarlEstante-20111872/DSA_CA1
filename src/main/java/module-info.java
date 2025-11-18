@@ -5,8 +5,6 @@ module org.example.demo {
 
 
     opens org.example.demo to javafx.fxml;
-    exports org.example.demo;
-    exports dsa_ca1;
     opens dsa_ca1 to javafx.fxml;
     exports dsa_ca1.controllers;
     opens dsa_ca1.controllers to javafx.fxml;
