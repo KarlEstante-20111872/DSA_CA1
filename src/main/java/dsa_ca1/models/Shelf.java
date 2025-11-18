@@ -41,6 +41,25 @@ public class Shelf {
         items.printList(items.head);
     }
 
+    public void viewStock() {
+        System.out.println("  Shelf " + shelfNumber + ":");
+
+        for (Node<GoodItems> item = items.head; item != null; item = item.next) {
+            System.out.print("    ");
+            item.data.viewStock();
+        }
+
+        System.out.println("  Shelf " + shelfNumber + " total value: €" + getTotalValue());
+        System.out.println();
+    }
+
+    public double getTotalValue() {
+        double ToTaL = 0;
+        for (Node<GoodItems> bad = items.head; bad != null; bad = bad.next) {
+            ToTaL += bad.data.getTotalValue();
+        }
+        return ToTaL;
+    }
     @Override
     public String toString() {
         return "Shelf{" +

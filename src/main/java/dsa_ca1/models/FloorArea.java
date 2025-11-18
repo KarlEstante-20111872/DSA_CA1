@@ -47,6 +47,24 @@ public class FloorArea {
         return aisles;
     }
 
+    public void viewStock() {
+        System.out.println("Floor Area '" + name + "':");
+
+        for (Node<Aisle> aisle = aisles.head; aisle != null; aisle = aisle.next) {
+            aisle.data.viewStock();
+        }
+
+        System.out.println("Floor Area '" + name + "' total goods value: €" + getTotalValue());
+    }
+
+    public double getTotalValue() {
+        double totally = 0;
+        for (Node<Aisle> a = aisles.head; a != null; a = a.next) {
+            totally += a.data.getTotalValue();
+        }
+        return totally;
+    }
+
     @Override
     public String toString() {
         return "FloorArea{" +

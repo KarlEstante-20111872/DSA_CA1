@@ -66,6 +66,16 @@ public class GoodItems {
         this.photoURL = photoURL;
     }
 
+    public double getTotalValue() {
+        return unitPrice * quantity;
+    }
+
+    public void viewStock() {
+        double total = getTotalValue();
+        System.out.println(description + " (" + unitSize + "): " +
+                quantity + " @ €" + unitPrice + " = €" + total);
+    }
+
     @Override
     public String toString() {
         return "GoodItems{" +

@@ -71,6 +71,22 @@ public class Aisle {
         this.shelves = shelves;
     }
 
+    public double getTotalValue() {
+        double totaLL = 0;
+        for (Node<Shelf> shelf = shelves.head; shelf != null; shelf = shelf.next) {
+            totaLL += shelf.data.getTotalValue();
+        }
+        return totaLL;
+    }
+
+    public void viewStock() {
+        System.out.println("Aisle '" + aisleName + "' (" + temperature + "):");
+        for (Node<Shelf> shelf = shelves.head; shelf != null; shelf = shelf.next) {
+            shelf.data.viewStock();
+        }
+        System.out.println("Aisle '" + aisleName + "' total goods value: €" + getTotalValue());
+    }
+
     @Override
     public String toString() {
         return "Aisle{" +
