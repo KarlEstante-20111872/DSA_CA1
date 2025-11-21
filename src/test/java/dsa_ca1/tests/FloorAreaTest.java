@@ -42,7 +42,7 @@ class FloorAreaTest {
     void removeAisle() {
         floor.addAisle(aisle1);
         floor.addAisle(aisle2);
-        floor.removeAisle(0);
+        floor.removeAisle(aisle2); // remove by object
         assertFalse(floor.searchAisle(aisle2));
         assertTrue(floor.searchAisle(aisle1));
     }

@@ -47,6 +47,14 @@ public class FloorArea {
         return aisles;
     }
 
+    public Aisle getAisleByName(String name) {
+        for (Node<Aisle> a = aisles.head; a != null; a = a.next) {
+            if (a.data.getAisleName().equals(name)) return a.data;
+        }
+        return null;
+    }
+
+
     public void viewStock() {
         System.out.println("Floor Area '" + name + "':");
 

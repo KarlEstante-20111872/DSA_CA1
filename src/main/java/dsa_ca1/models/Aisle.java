@@ -79,6 +79,13 @@ public class Aisle {
         return totaLL;
     }
 
+    public Shelf getShelfByNumber(int number) {
+        for (Node<Shelf> s = shelves.head; s != null; s = s.next) {
+            if (s.data.getShelfNumber() == number) return s.data;
+        }
+        return null;
+    }
+
     public void viewStock() {
         System.out.println("Aisle '" + aisleName + "' (" + temperature + "):");
         for (Node<Shelf> shelf = shelves.head; shelf != null; shelf = shelf.next) {

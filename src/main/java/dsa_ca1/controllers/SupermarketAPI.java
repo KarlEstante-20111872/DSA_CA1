@@ -34,6 +34,21 @@ public class SupermarketAPI {
         floorAreas.printList(floorAreas.head);
     }
 
+    public LinkedList<FloorArea> getFloorAreas() {
+        return floorAreas;
+    }
+
+    public void setFloorAreas(LinkedList<FloorArea> floorAreas) {
+        this.floorAreas = floorAreas;
+    }
+
+    public FloorArea getFloorAreaByName(String name) {
+        for (Node<FloorArea> f = floorAreas.head; f != null; f = f.next) {
+            if (f.data.getName().equals(name)) return f.data;
+        }
+        return null;
+    }
+
     // search good items (12 hours to figure out and the rest took considerably less time)
     public void searchGoodItem(String name) {
         boolean found = false;

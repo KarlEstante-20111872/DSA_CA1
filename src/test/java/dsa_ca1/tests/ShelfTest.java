@@ -41,7 +41,7 @@ class ShelfTest {
     void removeGoodItem() {
         shelf.addItem(item1);
         shelf.addItem(item2);
-        shelf.removeItem(0); // remove head
+        shelf.removeItem(item1); // remove by object
         assertFalse(shelf.searchItem(item1));
         assertTrue(shelf.searchItem(item2));
     }

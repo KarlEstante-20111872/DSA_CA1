@@ -78,7 +78,7 @@ class AisleTest {
     void removeShelf() {
         aisle.addShelf(shelf1);
         aisle.addShelf(shelf2);
-        aisle.removeShelf(0); // removes the head
+        aisle.removeShelf(shelf2); // remove by object
         assertFalse(aisle.searchShelf(shelf2));
         assertTrue(aisle.searchShelf(shelf1));
     }
