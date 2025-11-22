@@ -1,0 +1,31 @@
+.root {
+    -fx-background-color: darkgray;
+}
+
+.label {
+    -fx-text-fill: white;
+}
+
+.button {
+    -fx-background-color: lightgray;
+    -fx-text-fill: black;
+    -fx-padding: 8 16 8 16;
+    -fx-background-radius: 6;
+}
+
+.text-field {
+    -fx-background-color: white;
+    -fx-text-fill: black;
+    -fx-background-radius: 4;
+    -fx-padding: 6;
+}
+
+.text-area {
+    -fx-control-inner-background: white;
+    -fx-text-fill: black;
+}
+
+.combo-box {
+    -fx-background-color: white;
+    -fx-text-fill: black;
+}
