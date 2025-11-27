@@ -1,97 +1,144 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuItem?>
 
+<?import javafx.scene.layout.HBox?>
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="dsa_ca1.controllers.SupermarketController">
+    <top>
+        <MenuBar>
+            <Menu text="File">
+                <MenuItem text="Save" onAction="#saveData"/>
+                <MenuItem text="Load" onAction="#loadData"/>
+            </Menu>
+        </MenuBar>
+    </top>
 
     <center>
         <TabPane fx:id="mainTabPane">
 
             <Tab text="Floors">
                 <VBox spacing="10">
-                    <padding>
-                        <Insets top="10" right="10" bottom="10" left="10" />
-                    </padding>
+                    <padding><Insets top="10" right="10" bottom="10" left="10" /></padding>
+
                     <TextField fx:id="floorNumberField" promptText="Floor number"/>
-                    <Button fx:id="createFloorButton" text="Create Floor" onAction="#createFloor"/>
+                    <Button fx:id="createFloorButton" text="Create Floor"/>
                 </VBox>
             </Tab>
 
             <Tab text="Aisles">
                 <VBox spacing="10">
-                    <padding>
-                        <Insets top="10" right="10" bottom="10" left="10" />
-                    </padding>
-                    <ComboBox fx:id="floorComboBoxForAisle" promptText="Select Floor"/>
+                    <padding><Insets top="10" right="10" bottom="10" left="10" /></padding>
+
+                    <ComboBox fx:id="floorComboBox" promptText="Select Floor"/>
+
                     <TextField fx:id="aisleNameField" promptText="Aisle name"/>
                     <TextField fx:id="aisleLengthField" promptText="Length"/>
                     <TextField fx:id="aisleWidthField" promptText="Width"/>
                     <TextField fx:id="aisleTemperatureField" promptText="Temperature"/>
-                    <Button fx:id="createAisleButton" text="Create Aisle" onAction="#createAisle"/>
+
+                    <Button fx:id="createAisleButton" text="Create Aisle"/>
                 </VBox>
             </Tab>
 
             <Tab text="Shelves">
                 <VBox spacing="10">
-                    <padding>
-                        <Insets top="10" right="10" bottom="10" left="10" />
-                    </padding>
-                    <ComboBox fx:id="floorComboBoxForShelf" promptText="Select Floor"/>
-                    <ComboBox fx:id="aisleComboBoxForShelf" promptText="Select Aisle"/>
+                    <padding><Insets top="10" right="10" bottom="10" left="10" /></padding>
+
+                    <ComboBox fx:id="floorComboBoxShelf" promptText="Select Floor"/>
+                    <ComboBox fx:id="aisleComboBoxShelf" promptText="Select Aisle"/>
+
                     <TextField fx:id="shelfNumberField" promptText="Shelf number"/>
-                    <Button fx:id="createShelfButton" text="Create Shelf" onAction="#createShelf"/>
+                    <Button fx:id="createShelfButton" text="Create Shelf"/>
                 </VBox>
             </Tab>
 
             <Tab text="Items">
                 <VBox spacing="10">
-                    <padding>
-                        <Insets top="10" right="10" bottom="10" left="10" />
-                    </padding>
+                    <padding><Insets top="10" right="10" bottom="10" left="10" /></padding>
+
                     <ComboBox fx:id="floorComboBoxItem" promptText="Select Floor"/>
                     <ComboBox fx:id="aisleComboBoxItem" promptText="Select Aisle"/>
                     <ComboBox fx:id="shelfComboBoxItem" promptText="Select Shelf"/>
+
                     <TextField fx:id="itemNameField" promptText="Item name"/>
                     <TextField fx:id="unitSizeField" promptText="Unit size"/>
                     <TextField fx:id="unitPriceField" promptText="Unit price"/>
                     <TextField fx:id="quantityField" promptText="Quantity"/>
                     <TextField fx:id="storageField" promptText="Storage temperature"/>
-                    <Button fx:id="smartAddButton" text="Smart Add" onAction="#smartAddItem"/>
+
+                    <Button fx:id="createItemButton" text="Create Item"/>
                 </VBox>
             </Tab>
 
-            <Tab text="Operatives">
-                <VBox spacing="10">
-                    <padding>
-                        <Insets top="10" right="10" bottom="10" left="10" />
-                    </padding>
-                    <Label text="Search Item"/>
-                    <TextField fx:id="searchItemNameField" promptText="Item name"/>
-                    <Button fx:id="searchItemButton" text="Search" onAction="#searchItem"/>
+            <Tab text="Operations">
+                <ScrollPane fitToWidth="true">
+                    <HBox spacing="40">
+                        <padding><Insets top="10" right="10" bottom="10" left="10" /></padding>
 
-                    <Label text="Remove Item"/>
-                    <TextField fx:id="removeItemNameField" promptText="Item name"/>
-                    <TextField fx:id="removeItemQuantityField" promptText="Quantity"/>
-                    <TextField fx:id="removeFloorField" promptText="Floor"/>
-                    <TextField fx:id="removeAisleField" promptText="Aisle"/>
-                    <TextField fx:id="removeShelfField" promptText="Shelf"/>
-                    <Button fx:id="removeItemButton" text="Remove Item" onAction="#removeItem"/>
+                        <VBox spacing="10">
+                            <Label text="Search Item"/>
+                            <TextField fx:id="searchItemNameField" promptText="Item name"/>
+                            <Button fx:id="searchItemButton" text="Search"/>
+                        </VBox>
 
-                    <Label text="Other Operations"/>
-                    <Button fx:id="viewStockButton" text="View Stock" onAction="#viewStock"/>
-                    <Button fx:id="resetAllButton" text="Reset All" onAction="#resetSystem"/>
+                        <VBox spacing="10">
+                            <Label text="Remove Item"/>
+                            <TextField fx:id="removeItemNameField" promptText="Item name"/>
+                            <TextField fx:id="removeItemQuantityField" promptText="Quantity"/>
+                            <TextField fx:id="removeFloorField" promptText="Floor"/>
+                            <TextField fx:id="removeAisleField" promptText="Aisle"/>
+                            <TextField fx:id="removeShelfField" promptText="Shelf"/>
+                            <Button fx:id="removeItemButton" text="Remove Item"/>
+                        </VBox>
 
-                </VBox>
+                        <VBox spacing="10">
+                            <Label text="Smart Add Item"/>
+                            <TextField fx:id="smartDescriptionField" promptText="Description"/>
+                            <TextField fx:id="smartQuantityField" promptText="Quantity"/>
+                            <TextField fx:id="smartTemperatureField" promptText="Temperature"/>
+                            <Button fx:id="smartAddButton" text="Smart Add"/>
+                        </VBox>
+
+                        <!-- ========== OTHER OPERATIONS BLOCK ========== -->
+                        <VBox spacing="10">
+                            <Label text="Other Operations"/>
+                            <Button fx:id="viewStockButton" text="View Stock"/>
+                            <Button fx:id="resetAllButton" text="Reset All"/>
+                        </VBox>
+
+                    </HBox>
+                </ScrollPane>
+            </Tab>
+
+
+            <Tab text="Map">
+                <AnchorPane fx:id="mapPane" prefWidth="600" prefHeight="400" style="-fx-background-color: darkblue;"/>
+
             </Tab>
 
         </TabPane>
     </center>
 
     <bottom>
-        <TextArea fx:id="outputArea" prefRowCount="5" editable="false" wrapText="true"/>
+        <TextArea fx:id="outputArea"
+                  prefRowCount="11"
+                  editable="false"
+                  wrapText="true"/>
     </bottom>
 
 </BorderPane>

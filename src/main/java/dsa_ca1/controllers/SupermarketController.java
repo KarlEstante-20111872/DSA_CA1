@@ -1,313 +1,441 @@
 package dsa_ca1.controllers;
 
+import dsa_ca1.models.*;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import dsa_ca1.models.*;
 
 public class SupermarketController {
 
-    private SupermarketAPI api = new SupermarketAPI();
+    private SupermarketAPI API = new SupermarketAPI();
+
+    @FXML private TabPane mainTabPane;
 
     @FXML private TextField floorNumberField;
+
     @FXML private Button createFloorButton;
+
     @FXML private ComboBox<String> floorComboBox;
 
     @FXML private TextField aisleNameField;
+
     @FXML private TextField aisleLengthField;
+
     @FXML private TextField aisleWidthField;
+
     @FXML private TextField aisleTemperatureField;
+
     @FXML private Button createAisleButton;
+
     @FXML private ComboBox<String> aisleComboBoxShelf;
 
+    @FXML private ComboBox<String> floorComboBoxShelf;
+
     @FXML private TextField shelfNumberField;
+
     @FXML private Button createShelfButton;
 
+    @FXML private ComboBox<String> floorComboBoxItem;
+
+    @FXML private ComboBox<String> aisleComboBoxItem;
+
+    @FXML private ComboBox<String> shelfComboBoxItem;
+
+    @FXML private TextField itemNameField;
+
+    @FXML private TextField unitSizeField;
+
+    @FXML private TextField unitPriceField;
+
+    @FXML private TextField quantityField;
+
+    @FXML private TextField storageField;
+
+    @FXML private Button createItemButton;
+
     @FXML private TextField smartDescriptionField;
-    @FXML private TextField smartTemperatureField;
+
     @FXML private TextField smartQuantityField;
+
+    @FXML private TextField smartTemperatureField;
+
     @FXML private Button smartAddButton;
 
     @FXML private TextField searchItemNameField;
+
     @FXML private Button searchItemButton;
 
     @FXML private TextField removeFloorField;
+
     @FXML private TextField removeAisleField;
+
     @FXML private TextField removeShelfField;
+
     @FXML private TextField removeItemNameField;
+
     @FXML private TextField removeItemQuantityField;
+
     @FXML private Button removeItemButton;
 
     @FXML private Button viewStockButton;
+
     @FXML private Button resetAllButton;
 
     @FXML private TextArea outputArea;
 
-    @FXML private AnchorPane mapPane; // interactive map
+    @FXML private AnchorPane mapPane;
 
     @FXML
     public void initialize() {
-        createAisleButton.setDisable(true);
-        createShelfButton.setDisable(true);
-        smartAddButton.setDisable(true);
-        searchItemButton.setDisable(true);
-        removeItemButton.setDisable(true);
-        viewStockButton.setDisable(true);
-        resetAllButton.setDisable(false);
-    }
+        Tab AISLES_TAB = mainTabPane.getTabs().get(1);
+        Tab SHELF_TAB = mainTabPane.getTabs().get(2);
+        Tab ITEMS_TAB = mainTabPane.getTabs().get(3);
 
-    // Creation
-    @FXML
-    public void createFloor() {
-        String floorText = floorNumberField.getText().trim();
-        if (floorText.isEmpty()) {
-            outputArea.appendText("Enter a floor number.\n");
-            return;
-        }
-        FloorArea floor = new FloorArea(floorText, Integer.parseInt(floorText));
-        api.addFloorArea(floor);
-        outputArea.appendText("Floor '" + floorText + "' created.\n");
+        AISLES_TAB.setDisable(true);
+        SHELF_TAB.setDisable(true);
+        ITEMS_TAB.setDisable(true);
 
-        floorComboBox.getItems().add(floorText);
-        createAisleButton.setDisable(false);
-        smartAddButton.setDisable(false);
+        //action buttons
+        //these three unlock after the prerequisite is made
+        createFloorButton.setOnAction(e -> {
+            createFloor();
+            AISLES_TAB.setDisable(false);
+        });
+        createAisleButton.setOnAction(e -> {
+            createAisle();
+            SHELF_TAB.setDisable(false);
+        });
+        createShelfButton.setOnAction(e -> {
+            createShelf();
+            ITEMS_TAB.setDisable(false);
+        });
+        floorComboBoxShelf.setOnAction(e -> refreshAisleComboBoxes());
+        floorComboBoxItem.setOnAction(e -> refreshAisleComboBoxes());
+        aisleComboBoxItem.setOnAction(e -> refreshShelfComboBoxes());
+        createItemButton.setOnAction(e -> createItem());
+        smartAddButton.setOnAction(e -> smartAddItem());
+        searchItemButton.setOnAction(e -> searchItem());
+        removeItemButton.setOnAction(e -> removeItem());
+        viewStockButton.setOnAction(e -> viewStock());
+        resetAllButton.setOnAction(e -> resetAll());
 
+        //initializing populating
+        refreshFloorComboBoxes();
+        refreshAisleComboBoxes();
+        refreshShelfComboBoxes();
+
+        //initializing map
         drawMap();
     }
-
-    @FXML
-    public void createAisle() {
-        String selectedFloor = floorComboBox.getSelectionModel().getSelectedItem();
-        if (selectedFloor == null) {
-            outputArea.appendText("Select a floor first.\n");
-            return;
+    //all the create methods
+    //.trim() in case of accidental spaces which could break certain operation methods
+    private void createFloor() {
+        String name = floorNumberField.getText().trim();
+        int floorNum = parseFloorNumber();
+        if (!name.isEmpty() && floorNum != -1) {
+            FloorArea floor = new FloorArea(name, floorNum);
+            API.addFloorArea(floor);
+            outputArea.appendText("Created Floor: " + name + "\n");
+            refreshFloorComboBoxes();
+            drawMap();
         }
+    }
 
+    private void createAisle() {
+        String floorName = floorComboBox.getValue();
         String name = aisleNameField.getText().trim();
-        String lengthText = aisleLengthField.getText().trim();
-        String widthText = aisleWidthField.getText().trim();
-        String temp = aisleTemperatureField.getText().trim();
+        int length = Integer.parseInt(aisleLengthField.getText());
+        int width = Integer.parseInt(aisleWidthField.getText());// parsing from java or helpers at the end
+        String temperature = aisleTemperatureField.getText().trim();
 
-        if (name.isEmpty() || lengthText.isEmpty() || widthText.isEmpty() || temp.isEmpty()) {
-            outputArea.appendText("Fill all aisle fields.\n");
-            return;
+        FloorArea floor = API.getFloorAreaByName(floorName);
+        if (floor != null) {
+            Aisle aisle = new Aisle(name, temperature, length, width, new LinkedList<>());
+            floor.getAisles().add(aisle);
+
+            outputArea.appendText("Created Aisle: " + name + " on Floor: " + floorName + "\n");
+
+            refreshAisleComboBoxes(); //make the aisle appear in all relevant combo boxes
+            drawMap();
         }
-
-        FloorArea floor = api.getFloorAreaByName(selectedFloor);
-        if (floor == null) return;
-
-        Aisle aisle = new Aisle(name, temp, Integer.parseInt(lengthText), Integer.parseInt(widthText), new LinkedList<>());
-        floor.addAisle(aisle);
-
-        outputArea.appendText("Aisle '" + name + "' added to floor '" + selectedFloor + "'.\n");
-        createShelfButton.setDisable(false);
-
-        drawMap();
     }
 
-    @FXML
-    public void createShelf() {
-        String selectedFloor = floorComboBox.getSelectionModel().getSelectedItem();
-        String selectedAisle = aisleComboBoxShelf.getSelectionModel().getSelectedItem();
+    private void createShelf() {
+        String floorName = floorComboBoxShelf.getValue();
+        String aisleName = aisleComboBoxShelf.getValue();
+        int shelfNumber = parseShelfNumber();
 
-        if (selectedFloor == null || selectedAisle == null) {
-            outputArea.appendText("Select floor and aisle.\n");
-            return;
+        if (shelfNumber == -1) return;
+
+        FloorArea floor = API.getFloorAreaByName(floorName);
+        if (floor != null) {
+            for (Node<Aisle> a = floor.getAisles().head; a != null; a = a.next) {
+                if (a.data.getAisleName().equals(aisleName)) {
+                    Shelf shelf = new Shelf(shelfNumber, new LinkedList<>());
+                    a.data.getShelves().add(shelf);
+
+                    outputArea.appendText("Created Shelf: " + shelfNumber + "\n" + " on Aisle: " + aisleName + "\n");
+
+                    refreshShelfComboBoxes();
+                }
+            }
         }
-
-        String shelfText = shelfNumberField.getText().trim();
-        if (shelfText.isEmpty()) {
-            outputArea.appendText("Enter a shelf number.\n");
-            return;
-        }
-
-        FloorArea floor = api.getFloorAreaByName(selectedFloor);
-        Aisle aisle = floor.getAisleByName(selectedAisle);
-
-        if (aisle == null) return;
-
-        Shelf shelf = new Shelf(Integer.parseInt(shelfText), new LinkedList<>());
-        aisle.addShelf(shelf);
-
-        outputArea.appendText("Shelf " + shelfText + " added to aisle '" + selectedAisle + "'.\n");
-
-        drawMap();
     }
 
-    // smart add
-    @FXML
-    public void smartAddItem() {
-        String desc = smartDescriptionField.getText().trim();
-        String temp = smartTemperatureField.getText().trim();
-        String qtyText = smartQuantityField.getText().trim();
+    private void createItem() {
+        String floorName = floorComboBoxItem.getValue();
+        String aisleName = aisleComboBoxItem.getValue();
+        int shelfNumber = Integer.parseInt(shelfComboBoxItem.getValue()); // shelf combo stays the same
+        String name = itemNameField.getText().trim();
+        String size = unitSizeField.getText().trim();
+        double price = Double.parseDouble(unitPriceField.getText());
+        int quantity = parseItemQuantity(); // use helper
+        if (quantity == -1) return;
+        String storage = storageField.getText().trim();
 
-        if (desc.isEmpty() || temp.isEmpty() || qtyText.isEmpty()) {
-            outputArea.appendText("Fill all Smart Add fields.\n");
-            return;
-        }
+        FloorArea floor = API.getFloorAreaByName(floorName);
+        if (floor != null) {
+            for (Node<Aisle> a = floor.getAisles().head; a != null; a = a.next) {
+                if (a.data.getAisleName().equals(aisleName)) {
+                    for (Node<Shelf> s = a.data.getShelves().head; s != null; s = s.next) {
+                        if (s.data.getShelfNumber() == shelfNumber) {
+                            GoodItems item = new GoodItems(name, size, price, quantity, storage, "");
+                            s.data.getItems().add(item);
 
-        GoodItems item = new GoodItems(desc, "", 0.0, Integer.parseInt(qtyText), temp, "");
-        api.smartAdd(item);
+                            outputArea.appendText("Created Item: " + name + "\n" + "Qty: " + quantity + "\n" + " on Shelf: " + shelfNumber + "\n");
 
-        outputArea.appendText("Added " + qtyText + " of '" + desc + "' to stock.\n");
-    }
-
-    // search item
-    @FXML
-    public void searchItem() {
-        String name = searchItemNameField.getText().trim();
-        if (name.isEmpty()) {
-            outputArea.appendText("Enter an item name.\n");
-            return;
-        }
-
-        StringBuilder results = new StringBuilder();
-        for (Node<FloorArea> f = api.getFloorAreas().head; f != null; f = f.next) {
-            for (Node<Aisle> a = f.data.getAisles().head; a != null; a = a.next) {
-                for (Node<Shelf> s = a.data.getShelves().head; s != null; s = s.next) {
-                    for (Node<GoodItems> i = s.data.getItems().head; i != null; i = i.next) {
-                        if (i.data.getDescription().equalsIgnoreCase(name)) {
-                            results.append("Found '").append(name).append("' on Floor '")
-                                    .append(f.data.getName()).append("', Aisle '")
-                                    .append(a.data.getAisleName()).append("', Shelf ")
-                                    .append(s.data.getShelfNumber()).append(", Qty=")
-                                    .append(i.data.getQuantity()).append("\n");
+                            refreshItemComboBoxes();
                         }
                     }
                 }
             }
         }
-
-        if (results.isEmpty()) results.append("Item '").append(name).append("' not found.\n");
-        outputArea.appendText(results.toString());
     }
 
-    // Remove item
-    @FXML
-    public void removeItem() {
+    //smart add
+    private void smartAddItem() {
+        String name = smartDescriptionField.getText().trim();
+        int quantity = Integer.parseInt(smartQuantityField.getText());
+        String storage = smartTemperatureField.getText().trim();
+        GoodItems item = new GoodItems(name, "", 0, quantity, storage, "");
+        API.smartAdd(item);
+        outputArea.appendText("Smart Added Item: " + name + "\n" + " Qty: " + quantity + "\n");
+    }
+
+    //search
+    private void searchItem() {
+        String name = searchItemNameField.getText().trim();
+        API.searchGoodItem(name);
+        outputArea.appendText("Searched for Item: " + name + "\n");
+    }
+
+    //remove
+    private void removeItem() {
         String floor = removeFloorField.getText().trim();
         String aisle = removeAisleField.getText().trim();
-        String shelf = removeShelfField.getText().trim();
-        String name = removeItemNameField.getText().trim();
-        String qty = removeItemQuantityField.getText().trim();
-
-        if (floor.isEmpty() || aisle.isEmpty() || shelf.isEmpty() || name.isEmpty() || qty.isEmpty()) {
-            outputArea.appendText("Fill all remove fields.\n");
-            return;
-        }
-
-        api.removeGoodItem(floor, aisle, Integer.parseInt(shelf), name, Integer.parseInt(qty));
-        outputArea.appendText("Attempted removal of " + qty + " " + name + " from Shelf " + shelf + ".\n");
+        int shelf = Integer.parseInt(removeShelfField.getText());
+        String itemName = removeItemNameField.getText().trim();
+        int qty = Integer.parseInt(removeItemQuantityField.getText());
+        API.removeGoodItem(floor, aisle, shelf, itemName, qty);
+        outputArea.appendText("Removed " + qty + " of " + itemName + "\n");
     }
 
-    // viewstock
-    @FXML
-    public void viewStock() {
-        StringBuilder report = new StringBuilder();
-        for (Node<FloorArea> f = api.getFloorAreas().head; f != null; f = f.next) {
-            report.append("=== Floor: ").append(f.data.getName()).append(" ===\n");
-            for (Node<Aisle> a = f.data.getAisles().head; a != null; a = a.next) {
-                report.append("Aisle: ").append(a.data.getAisleName())
-                        .append(" (").append(a.data.getTemperature()).append(")\n");
-                for (Node<Shelf> s = a.data.getShelves().head; s != null; s = s.next) {
-                    report.append("  Shelf ").append(s.data.getShelfNumber()).append(":\n");
-                    for (Node<GoodItems> i = s.data.getItems().head; i != null; i = i.next) {
-                        report.append("    ").append(i.data.getDescription())
-                                .append(" Qty=").append(i.data.getQuantity()).append("\n");
-                    }}}}
-        outputArea.appendText(report.toString());
+    //view stock
+    private void viewStock() {
+        API.viewAllStock();
+        outputArea.appendText("Viewed All Stock\n");
     }
-    // reset
-    @FXML
-    public void resetSystem() {
-        api = new SupermarketAPI();
 
-        floorNumberField.clear();
-        aisleNameField.clear();
-        aisleLengthField.clear();
-        aisleWidthField.clear();
-        aisleTemperatureField.clear();
-        shelfNumberField.clear();
-        smartDescriptionField.clear();
-        smartTemperatureField.clear();
-        smartQuantityField.clear();
-        searchItemNameField.clear();
-        removeFloorField.clear();
-        removeAisleField.clear();
-        removeShelfField.clear();
-        removeItemNameField.clear();
-        removeItemQuantityField.clear();
+    //reset supermarket
+    private void resetAll() {
+        API.setFloorAreas(new LinkedList<>());
+        refreshFloorComboBoxes();
+        refreshAisleComboBoxes();
+        refreshShelfComboBoxes();
+        outputArea.appendText("Reset All Data\n");
+        mapPane.getChildren().clear();
+    }
 
+    // combobox refreshing
+    private void refreshFloorComboBoxes() {
         floorComboBox.getItems().clear();
-        aisleComboBoxShelf.getItems().clear();
-
-        outputArea.clear();
-        mapPane.getChildren().clear();
-
-        createAisleButton.setDisable(true);
-        createShelfButton.setDisable(true);
-        smartAddButton.setDisable(true);
-        searchItemButton.setDisable(true);
-        removeItemButton.setDisable(true);
-        viewStockButton.setDisable(true);
-
-        outputArea.appendText("System reset completed!\n");
+        floorComboBoxShelf.getItems().clear();
+        floorComboBoxItem.getItems().clear();
+        for (Node<FloorArea> FLOOR = API.getFloorAreas().head; FLOOR != null; FLOOR = FLOOR.next) {
+            String name = FLOOR.data.getName();
+            floorComboBox.getItems().add(name);
+            floorComboBoxShelf.getItems().add(name);
+            floorComboBoxItem.getItems().add(name);
+        }
     }
 
-    // map
-    // took me around a day to figure out through testing and online vids
-    @FXML
-    public void drawMap() {
+    private void refreshAisleComboBoxes() {
+        aisleComboBoxShelf.getItems().clear();
+        aisleComboBoxItem.getItems().clear();
+
+        String floorNameShelf = floorComboBoxShelf.getValue();
+        String floorNameItem = floorComboBoxItem.getValue();
+
+        //checks the floor to add aisles to the combo box
+        if (floorNameShelf != null) {
+            FloorArea FLOOR = API.getFloorAreaByName(floorNameShelf);
+            if (FLOOR != null) {
+                for (Node<Aisle> AISLE = FLOOR.getAisles().head; AISLE != null; AISLE = AISLE.next) {
+                    aisleComboBoxShelf.getItems().add(AISLE.data.getAisleName());
+                }
+            }
+        }
+        //same thing but with items
+        if (floorNameItem != null) {
+            FloorArea floor = API.getFloorAreaByName(floorNameItem);
+            if (floor != null) {
+                for (Node<Aisle> AISLE = floor.getAisles().head; AISLE != null; AISLE = AISLE.next) {
+                    aisleComboBoxItem.getItems().add(AISLE.data.getAisleName());
+                }
+            }
+            refreshShelfComboBoxes();
+        }
+    }
+
+    private void refreshShelfComboBoxes() {
+        shelfComboBoxItem.getItems().clear();
+        String floorName = floorComboBoxItem.getValue();
+        String aisleName = aisleComboBoxItem.getValue();
+
+        if (floorName != null && aisleName != null) {
+            FloorArea floor = API.getFloorAreaByName(floorName);
+            Aisle aisle = floor.getAisleByName(aisleName);
+            for (Node<Shelf> s = aisle.getShelves().head; s != null; s = s.next) {
+                shelfComboBoxItem.getItems().add(String.valueOf(s.data.getShelfNumber()));
+            }
+        }
+    }
+
+    private void refreshItemComboBoxes() {
+        shelfComboBoxItem.getItems().clear();
+        String selectedFloor = floorComboBoxItem.getValue();
+        String selectedAisle = aisleComboBoxItem.getValue();
+
+        if (selectedFloor != null && selectedAisle != null) {
+            FloorArea floor = API.getFloorAreaByName(selectedFloor);
+            if (floor != null) {
+                Aisle aisle = floor.getAisleByName(selectedAisle);
+                if (aisle != null) {
+                    for (Node<Shelf> s = aisle.getShelves().head; s != null; s = s.next) {
+                        shelfComboBoxItem.getItems().add(String.valueOf(s.data.getShelfNumber()));
+                    }
+                }
+            }
+        }
+    }
+
+    //map
+    private void drawMap() {
         mapPane.getChildren().clear();
+        double padding = 10;
+        double startX = padding;
+        double startY = padding;
 
-        double floorStartY = 10; //starting Y position for the first floor
-        double floorHeight = 100; //height of each floor rectangle
-        double floorSpacing = 20; //spacing between floors
-        double floorWidth = 600; //fixed width for simplicity
-        double floorStartX = 10; //left margin
+        for (Node<FloorArea> f = API.getFloorAreas().head; f != null; f = f.next) {
+            FloorArea floor = f.data;
 
-        //loop through each floor
-        for (Node<FloorArea> floorsAreCool = api.getFloorAreas().head; floorsAreCool != null; floorsAreCool = floorsAreCool.next) {
-            FloorArea floor = floorsAreCool.data;
-
-            Rectangle floorRect = new Rectangle(floorStartX, floorStartY, floorWidth, floorHeight);
-            floorRect.setStrokeWidth(2);
-
+            // rectangles
+            Rectangle floorRect = new Rectangle(300, 150);
+            floorRect.setFill(Color.LIGHTBLUE);
+            floorRect.setStroke(Color.BLUE);
+            floorRect.setX(startX);
+            floorRect.setY(startY);
             mapPane.getChildren().add(floorRect);
 
-            // add floor label
-            Label floorLabel = new Label("Floor: " + floor.getName());
-            floorLabel.setLayoutX(floorStartX + 5);
-            floorLabel.setLayoutY(floorStartY + 5);
+            //floors
+            Label floorLabel = new Label(floor.getName());
+            floorLabel.setLayoutX(startX + 5);
+            floorLabel.setLayoutY(startY + 5);
             mapPane.getChildren().add(floorLabel);
 
-            // draw aisles inside the floor
-            double aisleStartX = floorStartX + 10; // margin inside floor
-            double aisleStartY = floorStartY + 30; // start below floor label
-            double aisleWidth = 80; // fixed width for aisles
-            double aisleHeight = 20; // fixed height for aisles
-            double aisleSpacing = 10; // spacing between aisles
+            //aisle draw
+            double aisleX = startX + 10;
+            double aisleY = startY + 25;
+            double aisleHeight = 40;
+            double aisleWidth = 60;
 
-            for (Node<Aisle> aNode = floor.getAisles().head; aNode != null; aNode = aNode.next) {
-                Aisle aisle = aNode.data;
+            for (Node<Aisle> a = floor.getAisles().head; a != null; a = a.next) {
+                Rectangle aisleRect = new Rectangle(aisleWidth, aisleHeight);
+                aisleRect.setFill(Color.LIGHTGREEN);
+                aisleRect.setStroke(Color.GREEN);
+                aisleRect.setX(aisleX);
+                aisleRect.setY(aisleY);
+                mapPane.getChildren().add(aisleRect);
 
-                Rectangle rect = new Rectangle(aisleStartX, aisleStartY, aisleWidth, aisleHeight);
-                rect.setStrokeWidth(1);
-                mapPane.getChildren().add(rect);
-
-                Label AL = new Label(aisle.getAisleName());
-                AL.setLayoutX(aisleStartX + 5);
-                AL.setLayoutY(aisleStartY + 2);
-                mapPane.getChildren().add(AL);
-
-                // move to next aisle vertically
-                aisleStartY += aisleHeight + aisleSpacing;
+                // aisles
+                Label aisleLabel = new Label(a.data.getAisleName());
+                aisleLabel.setLayoutX(aisleX + 3);
+                aisleLabel.setLayoutY(aisleY + 3);
+                mapPane.getChildren().add(aisleLabel);
+                //aisles within a floor position
+                aisleX += aisleWidth + 10;
             }
-
-            // move to next floor
-            floorStartY += floorHeight + floorSpacing;
+            // for floors below another one
+            startY += 200;
         }
     }
 
+        // save and load
+        @FXML
+    public void saveData() {
+        try {
+            API.save();
+            outputArea.appendText("Saved.\n");
+        } catch (Exception e) {
+            outputArea.appendText("Error: " + e.getMessage() + "\n");
+            System.err.println("Save error: " + e);
+        }
+    }
+
+    @FXML
+    public void loadData() {
+        try {
+            API.load();
+            refreshFloorComboBoxes();
+            refreshAisleComboBoxes();
+            refreshShelfComboBoxes();
+            drawMap();
+
+            outputArea.appendText("Loaded supermarket data.\n");
+        } catch (Exception e) {
+            outputArea.appendText("Error loading data: " + e.getMessage() + "\n");
+            System.err.println("Load error: " + e);
+        }
+    }
+
+    //validation
+    // parsing
+    private int parseFloorNumber() {
+        try {
+            return Integer.parseInt(floorNumberField.getText().trim());
+        } catch (NumberFormatException e) {
+            outputArea.appendText("Error: Needs to be integer.\n");
+            return -1; // -1 indicates invalid input
+        }
+    }
+
+    private int parseShelfNumber() {
+        try {
+            return Integer.parseInt(shelfNumberField.getText().trim());
+        } catch (NumberFormatException e) {
+            outputArea.appendText("Error: Needs to be integer.\n");
+            return -1;
+        }
+    }
+
+    private int parseItemQuantity() {
+        try {
+            return Integer.parseInt(quantityField.getText().trim());
+        } catch (NumberFormatException e) {
+            outputArea.appendText("Error: Needs to be int.\n");
+            return -1;
+        }
+    }
 }

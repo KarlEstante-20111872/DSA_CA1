@@ -5,6 +5,7 @@ module dsa_ca1 {
 
     opens dsa_ca1.controllers to javafx.fxml;
     opens dsa_ca1.main to javafx.fxml;
+    opens dsa_ca1.models to xstream;
 
     exports dsa_ca1.controllers;
     exports dsa_ca1.main;
