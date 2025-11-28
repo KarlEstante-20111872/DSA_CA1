@@ -86,12 +86,14 @@ public class Aisle {
         return null;
     }
 
-    public void viewStock() {
-        System.out.println("Aisle '" + aisleName + "' (" + temperature + "):");
+    public String viewStock() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Aisle '").append(aisleName).append("':\n");
         for (Node<Shelf> shelf = shelves.head; shelf != null; shelf = shelf.next) {
-            shelf.data.viewStock();
+            sb.append(shelf.data.viewStock()); // call Shelf's version returning a String
         }
-        System.out.println("Aisle '" + aisleName + "' total goods value: €" + getTotalValue());
+        sb.append("Aisle '").append(aisleName).append(" has a total goods value of: €").append(getTotalValue()).append("\n");
+        return sb.toString();
     }
 
     @Override

@@ -16,8 +16,11 @@ class ShelfTest {
         LinkedList<GoodItems> itemsList = new LinkedList<>();
         shelf = new Shelf(1, itemsList);
 
-        item1 = new GoodItems("Cornflakes", "720g", 3.99, 16, "Unrefrigerated", "http://example.com/cornflakes.jpg");
-        item2 = new GoodItems("Tea Bags", "500g", 4.50, 10, "Unrefrigerated", "http://example.com/teabags.jpg");
+        item1 = new GoodItems("Cornflakes", "Breakfast Cereal", "720g", 3.99, 16, "Unrefrigerated", ""
+        );
+
+        item2 = new GoodItems("Tea Bags", "Black Tea", "500g", 4.50, 10, "Unrefrigerated", ""
+        );
     }
 
     @Test
@@ -41,7 +44,7 @@ class ShelfTest {
     void removeGoodItem() {
         shelf.addItem(item1);
         shelf.addItem(item2);
-        shelf.removeItem(item1); // remove by object
+        shelf.removeItem(item1);
         assertFalse(shelf.searchItem(item1));
         assertTrue(shelf.searchItem(item2));
     }
@@ -57,7 +60,7 @@ class ShelfTest {
     void printGoodItems() {
         shelf.addItem(item1);
         shelf.addItem(item2);
-        shelf.printItems(); // visually inspect output
+        shelf.printItems(); // manual visual inspection
     }
 
     @Test

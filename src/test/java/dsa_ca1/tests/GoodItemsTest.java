@@ -12,18 +12,20 @@ class GoodItemsTest {
 
     @BeforeEach
     void setUp() {
-        item = new GoodItems("Cornflakes", "720g", 3.99, 7, "Unrefrigerated", "https://example.com/cornflakes.jpg");
+        item = new GoodItems(
+                "Cornflakes", "Healthy breakfast cereal", "720g", 3.99, 7, "Unrefrigerated", ""
+        );
     }
 
     @Test
     void getDescription() {
-        assertEquals("Cornflakes", item.getDescription());
+        assertEquals("Healthy breakfast cereal", item.getDescription());
     }
 
     @Test
     void setDescription() {
-        item.setDescription("Rice");
-        assertEquals("Rice", item.getDescription());
+        item.setDescription("Rice Cereal");
+        assertEquals("Rice Cereal", item.getDescription());
     }
 
     @Test
@@ -76,15 +78,10 @@ class GoodItemsTest {
     }
 
     @Test
-    void setPhotoURL() {
-        item.setPhotoURL("https://example.com/rice.jpg");
-        assertEquals("https://example.com/rice.jpg", item.getPhotoURL());
-    }
-
-    @Test
     void testToString() {
         String str = item.toString();
         assertTrue(str.contains("Cornflakes"));
+        assertTrue(str.contains("Healthy breakfast cereal"));
         assertTrue(str.contains("720g"));
         assertTrue(str.contains("3.99"));
         assertTrue(str.contains("7"));

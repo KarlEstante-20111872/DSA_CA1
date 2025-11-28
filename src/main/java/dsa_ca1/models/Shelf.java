@@ -41,16 +41,17 @@ public class Shelf {
         items.printList(items.head);
     }
 
-    public void viewStock() {
-        System.out.println("  Shelf " + shelfNumber + ":");
-
+    public String viewStock() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Shelf ").append(shelfNumber).append(":\n");
         for (Node<GoodItems> item = items.head; item != null; item = item.next) {
-            System.out.print("    ");
-            item.data.viewStock();
+            sb.append("Item: ").append(item.data.getDescription())
+                    .append(" with a quantity of ").append(item.data.getQuantity())
+                    .append(" and the price of: €").append(item.data.getUnitPrice()).append("\n");
         }
-
-        System.out.println("  Shelf " + shelfNumber + " total value: €" + getTotalValue());
-        System.out.println();
+        sb.append("Shelf ").append(shelfNumber)
+                .append(" has a total goods value of: €").append(getTotalValue()).append("\n");
+        return sb.toString();
     }
 
     public double getTotalValue() {

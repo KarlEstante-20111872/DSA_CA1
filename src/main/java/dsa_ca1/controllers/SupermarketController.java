@@ -9,9 +9,12 @@ import javafx.scene.shape.Rectangle;
 
 public class SupermarketController {
 
+
     private SupermarketAPI API = new SupermarketAPI();
 
     @FXML private TabPane mainTabPane;
+
+    @FXML private TextField floorNameField;
 
     @FXML private TextField floorNumberField;
 
@@ -25,7 +28,7 @@ public class SupermarketController {
 
     @FXML private TextField aisleWidthField;
 
-    @FXML private TextField aisleTemperatureField;
+    @FXML private ChoiceBox<String> aisleTemperatureField;
 
     @FXML private Button createAisleButton;
 
@@ -45,15 +48,19 @@ public class SupermarketController {
 
     @FXML private TextField itemNameField;
 
+    @FXML private TextField itemDescriptionField;
+
     @FXML private TextField unitSizeField;
 
     @FXML private TextField unitPriceField;
 
     @FXML private TextField quantityField;
 
-    @FXML private TextField storageField;
+    @FXML private ChoiceBox<String> storageField;
 
     @FXML private Button createItemButton;
+
+    @FXML private TextField smartNameField;
 
     @FXML private TextField smartDescriptionField;
 
@@ -126,29 +133,45 @@ public class SupermarketController {
         refreshAisleComboBoxes();
         refreshShelfComboBoxes();
 
+        //populate storageChoiceBox for Smart Add
+        storageField.getItems().clear();
+        storageField.getItems().addAll("Regular", "Chilled", "Frozen");
+        storageField.setValue("Regular");
+
         //initializing map
         drawMap();
     }
     //all the create methods
     //.trim() in case of accidental spaces which could break certain operation methods
     private void createFloor() {
-        String name = floorNumberField.getText().trim();
+        String floorName = floorNameField.getText().trim();
         int floorNum = parseFloorNumber();
-        if (!name.isEmpty() && floorNum != -1) {
-            FloorArea floor = new FloorArea(name, floorNum);
-            API.addFloorArea(floor);
-            outputArea.appendText("Created Floor: " + name + "\n");
-            refreshFloorComboBoxes();
-            drawMap();
+
+        if (floorName.isEmpty()) {
+            outputArea.appendText("Error: Floor name cannot be empty.\n");
+            return;
         }
+        if (floorNum == -1) {
+            outputArea.appendText("Error: Must enter a valid floor number.\n");
+            return;
+        }
+        //floor creation
+        FloorArea floor = new FloorArea(floorName, floorNum);
+        API.addFloorArea(floor);
+        outputArea.appendText("Created Floor: " + floorName + "\n");
+        refreshFloorComboBoxes();
+        drawMap();
     }
+
+
 
     private void createAisle() {
         String floorName = floorComboBox.getValue();
         String name = aisleNameField.getText().trim();
         int length = Integer.parseInt(aisleLengthField.getText());
         int width = Integer.parseInt(aisleWidthField.getText());// parsing from java or helpers at the end
-        String temperature = aisleTemperatureField.getText().trim();
+        String temperature = aisleTemperatureField.getValue();
+
 
         FloorArea floor = API.getFloorAreaByName(floorName);
         if (floor != null) {
@@ -157,7 +180,7 @@ public class SupermarketController {
 
             outputArea.appendText("Created Aisle: " + name + " on Floor: " + floorName + "\n");
 
-            refreshAisleComboBoxes(); //make the aisle appear in all relevant combo boxes
+            refreshAisleComboBoxes();
             drawMap();
         }
     }
@@ -189,11 +212,16 @@ public class SupermarketController {
         String aisleName = aisleComboBoxItem.getValue();
         int shelfNumber = Integer.parseInt(shelfComboBoxItem.getValue()); // shelf combo stays the same
         String name = itemNameField.getText().trim();
+        String description = itemDescriptionField.getText().trim();
         String size = unitSizeField.getText().trim();
         double price = Double.parseDouble(unitPriceField.getText());
         int quantity = parseItemQuantity(); // use helper
         if (quantity == -1) return;
-        String storage = storageField.getText().trim();
+        String storage = storageField.getValue(); // get selected option
+        if (storage == null) {
+            outputArea.appendText("Error: Please select a storage temperature.\n");
+            return; // stop creating the item
+        }
 
         FloorArea floor = API.getFloorAreaByName(floorName);
         if (floor != null) {
@@ -201,10 +229,10 @@ public class SupermarketController {
                 if (a.data.getAisleName().equals(aisleName)) {
                     for (Node<Shelf> s = a.data.getShelves().head; s != null; s = s.next) {
                         if (s.data.getShelfNumber() == shelfNumber) {
-                            GoodItems item = new GoodItems(name, size, price, quantity, storage, "");
+                            GoodItems item = new GoodItems(name, description, size, price, quantity, storage, "");
                             s.data.getItems().add(item);
 
-                            outputArea.appendText("Created Item: " + name + "\n" + "Qty: " + quantity + "\n" + " on Shelf: " + shelfNumber + "\n");
+                            outputArea.appendText("Created Item: " + name + "\n" + " Description: " + "\n" + "Qty: " + quantity + "\n" + " on Shelf: " + shelfNumber + "\n");
 
                             refreshItemComboBoxes();
                         }
@@ -216,10 +244,11 @@ public class SupermarketController {
 
     //smart add
     private void smartAddItem() {
-        String name = smartDescriptionField.getText().trim();
+        String name = smartNameField.getText().trim();
         int quantity = Integer.parseInt(smartQuantityField.getText());
         String storage = smartTemperatureField.getText().trim();
-        GoodItems item = new GoodItems(name, "", 0, quantity, storage, "");
+        String description = smartDescriptionField.getText().trim();
+        GoodItems item = new GoodItems(name, description, "", 0, quantity, storage, "");
         API.smartAdd(item);
         outputArea.appendText("Smart Added Item: " + name + "\n" + " Qty: " + quantity + "\n");
     }
@@ -227,10 +256,9 @@ public class SupermarketController {
     //search
     private void searchItem() {
         String name = searchItemNameField.getText().trim();
-        API.searchGoodItem(name);
-        outputArea.appendText("Searched for Item: " + name + "\n");
+        String result = API.searchGoodItem(name);  // now returns a message
+        outputArea.appendText(result);
     }
-
     //remove
     private void removeItem() {
         String floor = removeFloorField.getText().trim();
@@ -238,14 +266,14 @@ public class SupermarketController {
         int shelf = Integer.parseInt(removeShelfField.getText());
         String itemName = removeItemNameField.getText().trim();
         int qty = Integer.parseInt(removeItemQuantityField.getText());
+
         API.removeGoodItem(floor, aisle, shelf, itemName, qty);
-        outputArea.appendText("Removed " + qty + " of " + itemName + "\n");
     }
 
     //view stock
     private void viewStock() {
-        API.viewAllStock();
-        outputArea.appendText("Viewed All Stock\n");
+        String report = API.viewAllStock();
+        outputArea.appendText(report + "\n");
     }
 
     //reset supermarket
@@ -355,6 +383,12 @@ public class SupermarketController {
             floorLabel.setLayoutY(startY + 5);
             mapPane.getChildren().add(floorLabel);
 
+            floorRect.setOnMouseClicked(e -> {
+                mainTabPane.getSelectionModel().select(0);
+                floorNumberField.setText(String.valueOf(floor.getFloor()));
+                floorNameField.setText(floor.getName());
+            });
+
             //aisle draw
             double aisleX = startX + 10;
             double aisleY = startY + 25;
@@ -362,6 +396,8 @@ public class SupermarketController {
             double aisleWidth = 60;
 
             for (Node<Aisle> a = floor.getAisles().head; a != null; a = a.next) {
+                Aisle aisle = a.data;
+
                 Rectangle aisleRect = new Rectangle(aisleWidth, aisleHeight);
                 aisleRect.setFill(Color.LIGHTGREEN);
                 aisleRect.setStroke(Color.GREEN);
@@ -376,6 +412,12 @@ public class SupermarketController {
                 mapPane.getChildren().add(aisleLabel);
                 //aisles within a floor position
                 aisleX += aisleWidth + 10;
+
+                aisleRect.setOnMouseClicked(e -> {
+                    mainTabPane.getSelectionModel().select(1); // Aisle tab index
+                    floorComboBoxShelf.setValue(floor.getName());
+                    aisleNameField.setText(aisle.getAisleName());
+                });
             }
             // for floors below another one
             startY += 200;

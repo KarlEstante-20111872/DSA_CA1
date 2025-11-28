@@ -50,21 +50,36 @@ public class SupermarketAPI {
     }
 
     // search good items (12 hours to figure out and the rest took considerably less time)
-    public void searchGoodItem(String name) {
+    public String searchGoodItem(String name) {
         boolean found = false;
+        StringBuilder sb = new StringBuilder();
 
-        for (Node<FloorArea> FLOOR = floorAreas.head; FLOOR != null; FLOOR = FLOOR.next) { //checks the linkedlists of each class
-            for (Node<Aisle> AISLE = FLOOR.data.getAisles().head; AISLE != null; AISLE = AISLE.next) {//and it also documents it
-                for (Node<Shelf> SHELF = AISLE.data.getShelves().head; SHELF != null; SHELF = SHELF.next) {//so we keep going down until
-                    for (Node<GoodItems> ITEM = SHELF.data.getItems().head; ITEM != null; ITEM = ITEM.next) {//we reach the item itself
-                        if (ITEM.data.getDescription().equals(name)) {//then we ask if it has the same value(name)
-                            found = true;//if true, it prints out where it all is from each class with its values needed
-                            System.out.println(
-                                    "Found '" + ITEM.data.getDescription() + "' on " + "Floor='" + FLOOR.data.getName() + "', " + "Aisle='" + AISLE.data.getAisleName() + "', " + "Shelf=" + SHELF.data.getShelfNumber() + ", " + "Qty=" + ITEM.data.getQuantity());
-                        }}}}}if (!found){ System.out.println("Item is not found.");}}
+        for (Node<FloorArea> FLOOR = floorAreas.head; FLOOR != null; FLOOR = FLOOR.next) {
+            for (Node<Aisle> AISLE = FLOOR.data.getAisles().head; AISLE != null; AISLE = AISLE.next) {
+                for (Node<Shelf> SHELF = AISLE.data.getShelves().head; SHELF != null; SHELF = SHELF.next) {
+                    for (Node<GoodItems> ITEM = SHELF.data.getItems().head; ITEM != null; ITEM = ITEM.next) {
+                        if (ITEM.data.getDescription().equals(name)) {
+                            found = true;
+                            sb.append("---- Searching Results ----\n")
+                                    .append("Item: '").append(ITEM.data.getDescription())
+                                    .append("' has been found on Floor='")
+                                    .append(FLOOR.data.getName())
+                                    .append(" Aisle: ")
+                                    .append(AISLE.data.getAisleName()).append("\n")
+                                    .append(" Shelf: ")
+                                    .append(SHELF.data.getShelfNumber()).append("\n")
+                                    .append(" Qty: ")
+                                    .append(ITEM.data.getQuantity()).append("\n").append("\n");
+                        }}}}}
+        if (!found) {
+            sb.append("Item is not found.\n");
+        }
+        return sb.toString();
+    }
 
     // removegood item (5 ours 43 mins) search helped alot and used a bit of remove node linkedlists from linked list class for this
-    public void removeGoodItem(String floorName, String aisleName, int shelfNumber, String itemName, int quantity) {
+    public String removeGoodItem(String floorName, String aisleName, int shelfNumber, String itemName, int quantity) {
+        StringBuilder sb = new StringBuilder();   // <-- collects output for GUI
         boolean removed = false;
 
         outerLoop: // label for breaking out of all loops once removal is done
@@ -76,7 +91,7 @@ public class SupermarketAPI {
                     if (AISLE.data.getAisleName().equals(aisleName)) {
                         for (Node<Shelf> SHELF = AISLE.data.getShelves().head; SHELF != null; SHELF = SHELF.next) {
                             if (SHELF.data.getShelfNumber() == shelfNumber) {
-                                //^ same thing as before, traverse through the classes
+                                // ^ same thing as before, traverse through the classes
                                 Node<GoodItems> prev = null; // < used for removal of item
                                 for (Node<GoodItems> ITEM = SHELF.data.getItems().head; ITEM != null; ITEM = ITEM.next) {
                                     if (ITEM.data.getDescription().equals(itemName)) {
@@ -88,12 +103,25 @@ public class SupermarketAPI {
                                                 SHELF.data.getItems().head = ITEM.next; // removing the head
                                             } else {
                                                 prev.next = ITEM.next; // we link the node before the removed one to the one
-                                            }}                        // after it essentially cutting it out
+                                            }
+                                            // after it essentially cutting it out
+                                        }
                                         removed = true;
                                         // ^ here is the ACTUAL removal via prev like the linked list
-                                        System.out.println("Removed " + quantity + " of " + itemName + " from Shelf " + shelfNumber);
+                                        sb.append("---- Removing ----\n");
+                                        sb.append("Removed ").append(quantity).append(" of ").append(itemName).append("\n");
+                                        sb.append("Location:\n");
+                                        sb.append("  Floor: ").append(floorName).append("\n");
+                                        sb.append("  Aisle: ").append(aisleName).append("\n");
+                                        sb.append("  Shelf: ").append(shelfNumber).append("\n\n");
                                         break outerLoop; // break out of all loops since item is removed
-                                    }prev = ITEM;}}}}}}}}
+                                    }
+                                    prev = ITEM;}}}}}}}
+        if (!removed) {
+            sb.append("Item '").append(itemName).append("' not found for removal.\n");
+        }
+        return sb.toString();
+    }
     public int countFloorAreas() {
         int count = 0;
         for (Node<FloorArea> f = floorAreas.head; f != null; f = f.next) {
@@ -111,42 +139,78 @@ public class SupermarketAPI {
     }
 
     //viewStock in every other class
-    public void viewAllStock() {
-        System.out.println("=== FULL SUPERMARKET STOCK REPORT ===\n");
-
+    public String viewAllStock() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("---- Stock of Supermarket ----\n\n");
         for (Node<FloorArea> floor = floorAreas.head; floor != null; floor = floor.next) {
-            floor.data.viewStock();
+            sb.append(floor.data.viewStock());
         }
-
-        System.out.println("Supermarket: " + countFloorAreas() +
-                " Floor Areas, total goods value: €" + getTotalValue());
+        sb.append("Supermarket: ").append(countFloorAreas())
+                .append(" Floor Areas, total goods value: €").append(getTotalValue()).append("\n");
+        return sb.toString(); //
     }
 
-    public void smartAdd(GoodItems randomitem) {
-        // identical items to put with
+    public String smartAdd(GoodItems smartItem) {
+        //turn the name + description into lowercase words for matching
+        String COMBINEDTEXT = (smartItem.getItemName() + " " + smartItem.getDescription()).toLowerCase();
+        String[] TOKENS = COMBINEDTEXT.split("\\s+"); // Tokenisation: \\s will split on spaces
+        StringBuilder sb = new StringBuilder();
+
+        //identical items to put with
         outerLoop: // label to exit all loops once item is added
         for (Node<FloorArea> F = floorAreas.head; F != null; F = F.next) {
             for (Node<Aisle> A = F.data.getAisles().head; A != null; A = A.next) {
                 for (Node<Shelf> S = A.data.getShelves().head; S != null; S = S.next) {
                     for (Node<GoodItems> I = S.data.getItems().head; I != null; I = I.next) {
-                        if (I.data.getDescription().equals(randomitem.getDescription())) {
-                            I.data.setQuantity(I.data.getQuantity() + randomitem.getQuantity());
-                            break outerLoop; // exit all loops after adding
-                        }}}}}
+                        String existingCombined = (I.data.getItemName() + " " + I.data.getDescription()).toLowerCase();
+                        String[] TOKENSEXISTING = existingCombined.split("\\s+"); //tokenises the words
+                        // compares the newword to the existing words
+                        boolean matching = false;
+                        for (String NEW : TOKENS) {
+                            for (String EXISTING : TOKENSEXISTING) {
+                                if (NEW.equals(EXISTING)) {
+                                    matching = true;
+                                    break;
+                                }
+                            }
+                            if (matching) break;
+                        }
+                        // add quantities together if name matching
+                        if (matching) {
+                            // Add as a NEW SEPARATE ITEM on the same shelf
+                            S.data.addItem(smartItem);
+                            sb.append("Item smartly added to Shelf ")
+                                    .append(S.data.getShelfNumber())
+                                    .append(" based on matching name/description.\n");
+                            break outerLoop;
+                        }
+
+                    }
+                }
+            }
+        }
         // identical temperature to put with
-        outerTemp: // separate label for this second search
+        outerTemp:
         for (Node<FloorArea> F = floorAreas.head; F != null; F = F.next) {
             for (Node<Aisle> A = F.data.getAisles().head; A != null; A = A.next) {
-                if (A.data.getTemperature().equals(randomitem.getStorageTemperature()) && A.data.getShelves().head != null) {
-                    A.data.getShelves().head.data.addItem(randomitem);
-                    break outerTemp; // exit once added
-                    }}}
+                if (A.data.getTemperature().equals(smartItem.getStorageTemperature())
+                        && A.data.getShelves().head != null) {
+                    A.data.getShelves().head.data.addItem(smartItem);
+                    sb.append("Item smartly added based on temperature\n");
+                    break outerTemp;
+                }
+            }
+        }
         // any place it belongs
-        if (floorAreas.head != null && floorAreas.head.data.getAisles().head != null
-                && floorAreas.head.data.getAisles().head.data.getShelves().head != null) {
-            floorAreas.head.data.getAisles().head.data.getShelves().head.data.addItem(randomitem);
-            return;}
-        System.out.println("tossed into available shelf!");}
+        if (floorAreas.head != null &&
+                floorAreas.head.data.getAisles().head != null &&
+                floorAreas.head.data.getAisles().head.data.getShelves().head != null) {
+            floorAreas.head.data.getAisles().head.data.getShelves().head.data.addItem(smartItem);
+            sb.append("Item smartly added to first available shelf\n");
+        }
+
+        return sb.toString();
+    }
 
     // from last year programming XStream library
     public void load() throws Exception {

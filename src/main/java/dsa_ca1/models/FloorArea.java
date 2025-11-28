@@ -55,14 +55,15 @@ public class FloorArea {
     }
 
 
-    public void viewStock() {
-        System.out.println("Floor Area '" + name + "':");
-
+    public String viewStock() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Floor Area '").append(name).append("':\n");
         for (Node<Aisle> aisle = aisles.head; aisle != null; aisle = aisle.next) {
-            aisle.data.viewStock();
+            sb.append(aisle.data.viewStock()); // call Aisle's version returning a String
         }
+        sb.append("Floor Area ").append(name).append(" has a total goods value: €").append(getTotalValue()).append("\n");
 
-        System.out.println("Floor Area '" + name + "' total goods value: €" + getTotalValue());
+        return sb.toString();
     }
 
     public double getTotalValue() {

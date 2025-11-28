@@ -17,6 +17,9 @@
 <?import javafx.scene.control.MenuItem?>
 
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.ChoiceBox?>
+<?import javafx.collections.FXCollections?>
+<?import java.lang.String?>
 <BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="dsa_ca1.controllers.SupermarketController">
     <top>
@@ -35,6 +38,7 @@
                 <VBox spacing="10">
                     <padding><Insets top="10" right="10" bottom="10" left="10" /></padding>
 
+                    <TextField fx:id="floorNameField" promptText="Floor name"/>
                     <TextField fx:id="floorNumberField" promptText="Floor number"/>
                     <Button fx:id="createFloorButton" text="Create Floor"/>
                 </VBox>
@@ -49,7 +53,16 @@
                     <TextField fx:id="aisleNameField" promptText="Aisle name"/>
                     <TextField fx:id="aisleLengthField" promptText="Length"/>
                     <TextField fx:id="aisleWidthField" promptText="Width"/>
-                    <TextField fx:id="aisleTemperatureField" promptText="Temperature"/>
+                    <ChoiceBox fx:id="aisleTemperatureField">
+                        <items>
+                            <FXCollections fx:factory="observableArrayList">
+                                <String fx:value="Regular"/>
+                                <String fx:value="Chilled"/>
+                                <String fx:value="Frozen"/>
+                            </FXCollections>
+                        </items>
+                    </ChoiceBox>
+
 
                     <Button fx:id="createAisleButton" text="Create Aisle"/>
                 </VBox>
@@ -76,10 +89,21 @@
                     <ComboBox fx:id="shelfComboBoxItem" promptText="Select Shelf"/>
 
                     <TextField fx:id="itemNameField" promptText="Item name"/>
+                    <TextField fx:id="itemDescriptionField" promptText="Description" />
                     <TextField fx:id="unitSizeField" promptText="Unit size"/>
                     <TextField fx:id="unitPriceField" promptText="Unit price"/>
                     <TextField fx:id="quantityField" promptText="Quantity"/>
-                    <TextField fx:id="storageField" promptText="Storage temperature"/>
+                    <ChoiceBox fx:id="storageField">
+                        <items>
+                            <FXCollections fx:factory="observableArrayList">
+                                <String fx:value="Regular"/>
+                                <String fx:value="Chilled"/>
+                                <String fx:value="Frozen"/>
+                            </FXCollections>
+                        </items>
+                    </ChoiceBox>
+
+
 
                     <Button fx:id="createItemButton" text="Create Item"/>
                 </VBox>
@@ -108,6 +132,7 @@
 
                         <VBox spacing="10">
                             <Label text="Smart Add Item"/>
+                            <TextField fx:id="smartNameField" promptText="Item name"/>
                             <TextField fx:id="smartDescriptionField" promptText="Description"/>
                             <TextField fx:id="smartQuantityField" promptText="Quantity"/>
                             <TextField fx:id="smartTemperatureField" promptText="Temperature"/>

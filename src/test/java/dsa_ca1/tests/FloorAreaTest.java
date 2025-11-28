@@ -12,7 +12,6 @@ class FloorAreaTest {
 
     @BeforeEach
     void setUp() {
-        LinkedList<Aisle> aislesList = new LinkedList<>();
         floor = new FloorArea("Dairy", 1);
 
         LinkedList<Shelf> shelves1 = new LinkedList<>();

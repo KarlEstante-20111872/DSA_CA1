@@ -2,6 +2,7 @@ package dsa_ca1.models;
 
 
 public class GoodItems {
+    private String itemName;
     private String description;
     private String unitSize;
     private double unitPrice;
@@ -9,13 +10,22 @@ public class GoodItems {
     private String storageTemperature;
     private String photoURL;
 
-    public GoodItems(String description, String unitSize, double unitPrice, int quantity, String storageTemperature, String photoURL) {
+    public GoodItems(String itemName, String description, String unitSize, double unitPrice, int quantity, String storageTemperature, String photoURL) {
+        this.itemName = itemName;
         this.description = description;
         this.unitSize = unitSize;
         this.unitPrice = unitPrice;
         this.quantity = quantity;
         this.storageTemperature = storageTemperature;
         this.photoURL = photoURL;
+    }
+
+    public String getItemName() {
+        return itemName;
+    }
+
+    public void setItemName(String itemName) {
+        this.itemName = itemName;
     }
 
     public String getDescription() {
@@ -70,15 +80,11 @@ public class GoodItems {
         return unitPrice * quantity;
     }
 
-    public void viewStock() {
-        double total = getTotalValue();
-        System.out.println(description + " (" + unitSize + "): " +
-                quantity + " @ €" + unitPrice + " = €" + total);
-    }
 
     @Override
     public String toString() {
         return "GoodItems{" +
+                "itemName='" + itemName + '\'' +
                 "storageTemperature='" + storageTemperature + '\'' +
                 ", description='" + description + '\'' +
                 ", unitSize='" + unitSize + '\'' +
