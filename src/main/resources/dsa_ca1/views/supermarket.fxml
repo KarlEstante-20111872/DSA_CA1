@@ -102,6 +102,7 @@
                             </FXCollections>
                         </items>
                     </ChoiceBox>
+                    <TextField fx:id="photoURLField" promptText="Photo"/>
 
 
 
@@ -134,8 +135,17 @@
                             <Label text="Smart Add Item"/>
                             <TextField fx:id="smartNameField" promptText="Item name"/>
                             <TextField fx:id="smartDescriptionField" promptText="Description"/>
+                            <TextField fx:id="smartPriceField" promptText="Price"/>
                             <TextField fx:id="smartQuantityField" promptText="Quantity"/>
-                            <TextField fx:id="smartTemperatureField" promptText="Temperature"/>
+                            <ChoiceBox fx:id="smartTemperatureField">
+                                <items>
+                                    <FXCollections fx:factory="observableArrayList">
+                                        <String fx:value="Regular"/>
+                                        <String fx:value="Chilled"/>
+                                        <String fx:value="Frozen"/>
+                                    </FXCollections>
+                                </items>
+                            </ChoiceBox>
                             <Button fx:id="smartAddButton" text="Smart Add"/>
                         </VBox>
 

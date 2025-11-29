@@ -6,6 +6,14 @@ import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.paint.Color;
+import java.util.List;
+import java.util.ArrayList;
+
+
 
 public class SupermarketController {
 
@@ -58,6 +66,8 @@ public class SupermarketController {
 
     @FXML private ChoiceBox<String> storageField;
 
+    @FXML private TextField photoURLField;
+
     @FXML private Button createItemButton;
 
     @FXML private TextField smartNameField;
@@ -66,7 +76,9 @@ public class SupermarketController {
 
     @FXML private TextField smartQuantityField;
 
-    @FXML private TextField smartTemperatureField;
+    @FXML private TextField smartPriceField;
+
+    @FXML private ChoiceBox<String> smartTemperatureField;
 
     @FXML private Button smartAddButton;
 
@@ -169,7 +181,7 @@ public class SupermarketController {
         String floorName = floorComboBox.getValue();
         String name = aisleNameField.getText().trim();
         int length = Integer.parseInt(aisleLengthField.getText());
-        int width = Integer.parseInt(aisleWidthField.getText());// parsing from java or helpers at the end
+        int width = Integer.parseInt(aisleWidthField.getText());
         String temperature = aisleTemperatureField.getValue();
 
 
@@ -210,18 +222,15 @@ public class SupermarketController {
     private void createItem() {
         String floorName = floorComboBoxItem.getValue();
         String aisleName = aisleComboBoxItem.getValue();
-        int shelfNumber = Integer.parseInt(shelfComboBoxItem.getValue()); // shelf combo stays the same
+        int shelfNumber = Integer.parseInt(shelfComboBoxItem.getValue());
         String name = itemNameField.getText().trim();
         String description = itemDescriptionField.getText().trim();
         String size = unitSizeField.getText().trim();
         double price = Double.parseDouble(unitPriceField.getText());
-        int quantity = parseItemQuantity(); // use helper
+        int quantity = parseItemQuantity();
         if (quantity == -1) return;
-        String storage = storageField.getValue(); // get selected option
-        if (storage == null) {
-            outputArea.appendText("Error: Please select a storage temperature.\n");
-            return; // stop creating the item
-        }
+        String storage = storageField.getValue();
+        String photoURL = photoURLField.getText().trim();
 
         FloorArea floor = API.getFloorAreaByName(floorName);
         if (floor != null) {
@@ -229,7 +238,7 @@ public class SupermarketController {
                 if (a.data.getAisleName().equals(aisleName)) {
                     for (Node<Shelf> s = a.data.getShelves().head; s != null; s = s.next) {
                         if (s.data.getShelfNumber() == shelfNumber) {
-                            GoodItems item = new GoodItems(name, description, size, price, quantity, storage, "");
+                            GoodItems item = new GoodItems(name, description, size, price, quantity, storage, photoURL);
                             s.data.getItems().add(item);
 
                             outputArea.appendText("Created Item: " + name + "\n" + " Description: " + "\n" + "Qty: " + quantity + "\n" + " on Shelf: " + shelfNumber + "\n");
@@ -246,11 +255,13 @@ public class SupermarketController {
     private void smartAddItem() {
         String name = smartNameField.getText().trim();
         int quantity = Integer.parseInt(smartQuantityField.getText());
-        String storage = smartTemperatureField.getText().trim();
+        String storage = smartTemperatureField.getValue().trim();
         String description = smartDescriptionField.getText().trim();
-        GoodItems item = new GoodItems(name, description, "", 0, quantity, storage, "");
-        API.smartAdd(item);
-        outputArea.appendText("Smart Added Item: " + name + "\n" + " Qty: " + quantity + "\n");
+        double price = Double.parseDouble(smartPriceField.getText());
+
+        GoodItems item = new GoodItems(name, description, "", price, quantity, storage, "");
+        String result = API.smartAdd(item);
+        outputArea.appendText(result + "\n");
     }
 
     //search
@@ -359,37 +370,42 @@ public class SupermarketController {
         }
     }
 
-    //map
+    //map (i needed help from other people to complete this, never done this before)
     private void drawMap() {
         mapPane.getChildren().clear();
+
         double padding = 10;
         double startX = padding;
         double startY = padding;
 
+        Canvas canvas = new Canvas(mapPane.getWidth(), mapPane.getHeight());
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+
+        List<Rectangle> floorRects = new ArrayList<>();
+        List<FloorArea> floorData = new ArrayList<>();
+        List<Rectangle> aisleRects = new ArrayList<>();
+        List<Aisle> aisleData = new ArrayList<>();
+        List<Double> floorYs = new ArrayList<>();
+        List<Double> aisleXs = new ArrayList<>();
+        List<Double> aisleYs = new ArrayList<>();
+
         for (Node<FloorArea> f = API.getFloorAreas().head; f != null; f = f.next) {
             FloorArea floor = f.data;
-
-            // rectangles
-            Rectangle floorRect = new Rectangle(300, 150);
-            floorRect.setFill(Color.LIGHTBLUE);
-            floorRect.setStroke(Color.BLUE);
-            floorRect.setX(startX);
-            floorRect.setY(startY);
-            mapPane.getChildren().add(floorRect);
-
-            //floors
-            Label floorLabel = new Label(floor.getName());
-            floorLabel.setLayoutX(startX + 5);
-            floorLabel.setLayoutY(startY + 5);
-            mapPane.getChildren().add(floorLabel);
-
-            floorRect.setOnMouseClicked(e -> {
-                mainTabPane.getSelectionModel().select(0);
-                floorNumberField.setText(String.valueOf(floor.getFloor()));
-                floorNameField.setText(floor.getName());
-            });
-
-            //aisle draw
+            //floor make
+            double floorWidth = 300;
+            double floorHeight = 150;
+            gc.setFill(Color.LIGHTBLUE);
+            gc.fillRect(startX, startY, floorWidth, floorHeight);
+            gc.setStroke(Color.BLUE);
+            gc.strokeRect(startX, startY, floorWidth, floorHeight);
+            //floor css and label
+            gc.setFill(Color.BLACK);
+            gc.fillText(floor.getName(), startX + 5, startY + 15);
+            //mouse interactions
+            floorRects.add(new Rectangle(startX, startY, floorWidth, floorHeight));
+            floorData.add(floor);
+            floorYs.add(startY);
+            //draw aisles
             double aisleX = startX + 10;
             double aisleY = startY + 25;
             double aisleHeight = 40;
@@ -398,33 +414,60 @@ public class SupermarketController {
             for (Node<Aisle> a = floor.getAisles().head; a != null; a = a.next) {
                 Aisle aisle = a.data;
 
-                Rectangle aisleRect = new Rectangle(aisleWidth, aisleHeight);
-                aisleRect.setFill(Color.LIGHTGREEN);
-                aisleRect.setStroke(Color.GREEN);
-                aisleRect.setX(aisleX);
-                aisleRect.setY(aisleY);
-                mapPane.getChildren().add(aisleRect);
+                gc.setFill(Color.LIGHTGREEN);
+                gc.fillRect(aisleX, aisleY, aisleWidth, aisleHeight);
+                gc.setStroke(Color.GREEN);
+                gc.strokeRect(aisleX, aisleY, aisleWidth, aisleHeight);
+                gc.setFill(Color.BLACK);
+                gc.fillText(aisle.getAisleName(), aisleX + 3, aisleY + 15);
+                aisleRects.add(new Rectangle(aisleX, aisleY, aisleWidth, aisleHeight));
+                aisleData.add(aisle);
+                aisleXs.add(aisleX);
+                aisleYs.add(aisleY);
 
-                // aisles
-                Label aisleLabel = new Label(a.data.getAisleName());
-                aisleLabel.setLayoutX(aisleX + 3);
-                aisleLabel.setLayoutY(aisleY + 3);
-                mapPane.getChildren().add(aisleLabel);
-                //aisles within a floor position
                 aisleX += aisleWidth + 10;
-
-                aisleRect.setOnMouseClicked(e -> {
-                    mainTabPane.getSelectionModel().select(1); // Aisle tab index
-                    floorComboBoxShelf.setValue(floor.getName());
-                    aisleNameField.setText(aisle.getAisleName());
-                });
             }
-            // for floors below another one
+
             startY += 200;
         }
+
+        //mouse events
+        canvas.setOnMouseClicked(e -> {
+            double x = e.getX();
+            double y = e.getY();
+
+            //logic for floor and aisle clicks(interactive gui)
+            for (int i = 0; i < floorRects.size(); i++) {
+                Rectangle r = floorRects.get(i);
+                if (r.contains(x, y)) {
+                    FloorArea floor = floorData.get(i);
+                    mainTabPane.getSelectionModel().select(0);
+                    floorNumberField.setText(String.valueOf(floor.getFloor()));
+                    floorNameField.setText(floor.getName());
+                    return;
+                }
+            }
+
+            for (int i = 0; i < aisleRects.size(); i++) {
+                Rectangle r = aisleRects.get(i);
+                if (r.contains(x, y)) {
+                    Aisle aisle = aisleData.get(i);
+                    // Find corresponding floor for this aisle
+                    int floorIndex = i / (aisleRects.size() / floorRects.size()); // approximate
+                    FloorArea floor = floorData.get(floorIndex);
+
+                    mainTabPane.getSelectionModel().select(1); // Aisle tab
+                    floorComboBoxShelf.setValue(floor.getName());
+                    aisleNameField.setText(aisle.getAisleName());
+                    return;
+                }
+            }
+        });
+
+        mapPane.getChildren().add(canvas);
     }
 
-        // save and load
+    // save and load
         @FXML
     public void saveData() {
         try {

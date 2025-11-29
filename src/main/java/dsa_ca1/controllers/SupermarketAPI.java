@@ -153,38 +153,44 @@ public class SupermarketAPI {
     public String smartAdd(GoodItems smartItem) {
         //turn the name + description into lowercase words for matching
         String COMBINEDTEXT = (smartItem.getItemName() + " " + smartItem.getDescription()).toLowerCase();
-        String[] TOKENS = COMBINEDTEXT.split("\\s+"); // Tokenisation: \\s will split on spaces
+        LinkedList<String> TOKENS = new LinkedList<>();
+        for (String word : COMBINEDTEXT.split("\\s+")) {
+            TOKENS.add(word);
+        }
         StringBuilder sb = new StringBuilder();
-
         //identical items to put with
         outerLoop: // label to exit all loops once item is added
         for (Node<FloorArea> F = floorAreas.head; F != null; F = F.next) {
             for (Node<Aisle> A = F.data.getAisles().head; A != null; A = A.next) {
                 for (Node<Shelf> S = A.data.getShelves().head; S != null; S = S.next) {
                     for (Node<GoodItems> I = S.data.getItems().head; I != null; I = I.next) {
-                        String existingCombined = (I.data.getItemName() + " " + I.data.getDescription()).toLowerCase();
-                        String[] TOKENSEXISTING = existingCombined.split("\\s+"); //tokenises the words
+                        //turn existing name + description lowercase (validation)
+                        String existingCombined =
+                                (I.data.getItemName() + " " + I.data.getDescription()).toLowerCase();
+                        //tokenises the words
+                        LinkedList<String> TOKENSEXISTING = new LinkedList<>();
+                        for (String word : existingCombined.split("\\s+")) {
+                            TOKENSEXISTING.add(word);
+                        }
                         // compares the newword to the existing words
                         boolean matching = false;
-                        for (String NEW : TOKENS) {
-                            for (String EXISTING : TOKENSEXISTING) {
-                                if (NEW.equals(EXISTING)) {
+                        for (Node<String> NEW = TOKENS.head; NEW != null; NEW = NEW.next) {
+                            for (Node<String> EXISTING = TOKENSEXISTING.head; EXISTING != null; EXISTING = EXISTING.next) {
+                                if (NEW.data.equals(EXISTING.data)) {
                                     matching = true;
                                     break;
                                 }
                             }
                             if (matching) break;
                         }
-                        // add quantities together if name matching
+                        // add new item to the same shelf if matching
                         if (matching) {
-                            // Add as a NEW SEPARATE ITEM on the same shelf
-                            S.data.addItem(smartItem);
+                            S.data.addItem(smartItem); // add as SEPARATE item
                             sb.append("Item smartly added to Shelf ")
                                     .append(S.data.getShelfNumber())
                                     .append(" based on matching name/description.\n");
                             break outerLoop;
                         }
-
                     }
                 }
             }
@@ -201,14 +207,13 @@ public class SupermarketAPI {
                 }
             }
         }
-        // any place it belongs
+        // any place it belongs, loops through everything and places it at the head
         if (floorAreas.head != null &&
                 floorAreas.head.data.getAisles().head != null &&
                 floorAreas.head.data.getAisles().head.data.getShelves().head != null) {
             floorAreas.head.data.getAisles().head.data.getShelves().head.data.addItem(smartItem);
             sb.append("Item smartly added to first available shelf\n");
         }
-
         return sb.toString();
     }
 
