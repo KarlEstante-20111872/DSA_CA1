@@ -140,7 +140,6 @@ public class SupermarketController {
         viewStockButton.setOnAction(e -> viewStock());
         resetAllButton.setOnAction(e -> resetAll());
 
-        //initializing populating
         refreshFloorComboBoxes();
         refreshAisleComboBoxes();
         refreshShelfComboBoxes();
@@ -150,7 +149,6 @@ public class SupermarketController {
         storageField.getItems().addAll("Regular", "Chilled", "Frozen");
         storageField.setValue("Regular");
 
-        //initializing map
         drawMap();
     }
     //all the create methods
@@ -210,9 +208,7 @@ public class SupermarketController {
                 if (a.data.getAisleName().equals(aisleName)) {
                     Shelf shelf = new Shelf(shelfNumber, new LinkedList<>());
                     a.data.getShelves().add(shelf);
-
                     outputArea.appendText("Created Shelf: " + shelfNumber + "\n" + " on Aisle: " + aisleName + "\n");
-
                     refreshShelfComboBoxes();
                 }
             }
@@ -228,7 +224,6 @@ public class SupermarketController {
         String size = unitSizeField.getText().trim();
         double price = Double.parseDouble(unitPriceField.getText());
         int quantity = parseItemQuantity();
-        if (quantity == -1) return;
         String storage = storageField.getValue();
         String photoURL = photoURLField.getText().trim();
 
@@ -241,7 +236,7 @@ public class SupermarketController {
                             GoodItems item = new GoodItems(name, description, size, price, quantity, storage, photoURL);
                             s.data.getItems().add(item);
 
-                            outputArea.appendText("Created Item: " + name + "\n" + " Description: " + "\n" + "Qty: " + quantity + "\n" + " on Shelf: " + shelfNumber + "\n");
+                            outputArea.appendText("Created Item: " + name + "\n" + " Description: " + description + "\n" + "Qty: " + quantity + "\n" + " on Shelf: " + shelfNumber + "\n");
 
                             refreshItemComboBoxes();
                         }
@@ -278,7 +273,8 @@ public class SupermarketController {
         String itemName = removeItemNameField.getText().trim();
         int qty = Integer.parseInt(removeItemQuantityField.getText());
 
-        API.removeGoodItem(floor, aisle, shelf, itemName, qty);
+        String msg = API.removeGoodItem(floor, aisle, shelf, itemName, qty);
+        outputArea.setText(msg);
     }
 
     //view stock

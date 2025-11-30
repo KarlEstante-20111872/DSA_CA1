@@ -58,28 +58,29 @@ public class SupermarketAPI {
             for (Node<Aisle> AISLE = FLOOR.data.getAisles().head; AISLE != null; AISLE = AISLE.next) {
                 for (Node<Shelf> SHELF = AISLE.data.getShelves().head; SHELF != null; SHELF = SHELF.next) {
                     for (Node<GoodItems> ITEM = SHELF.data.getItems().head; ITEM != null; ITEM = ITEM.next) {
-                        if (ITEM.data.getDescription().equals(name)) {
+                        if (ITEM.data.getItemName().toLowerCase().contains(name.toLowerCase()))
+                        {
                             found = true;
                             sb.append("---- Searching Results ----\n")
-                                    .append("Item: '").append(ITEM.data.getDescription())
-                                    .append("' has been found on Floor='")
-                                    .append(FLOOR.data.getName())
-                                    .append(" Aisle: ")
+                                    .append("Item: ").append(ITEM.data.getItemName()).append("\n")
+                                    .append("Description: ").append(ITEM.data.getDescription()).append("on").append("\n")
+                                    .append(FLOOR.data.getName()).append("\n")
+                                    .append("Aisle: ")
                                     .append(AISLE.data.getAisleName()).append("\n")
-                                    .append(" Shelf: ")
+                                    .append("Shelf: ")
                                     .append(SHELF.data.getShelfNumber()).append("\n")
-                                    .append(" Qty: ")
+                                    .append("Qty: ")
                                     .append(ITEM.data.getQuantity()).append("\n").append("\n");
                         }}}}}
         if (!found) {
-            sb.append("Item is not found.\n");
+            sb.append("Item not found.\n");
         }
         return sb.toString();
     }
 
     // removegood item (5 ours 43 mins) search helped alot and used a bit of remove node linkedlists from linked list class for this
     public String removeGoodItem(String floorName, String aisleName, int shelfNumber, String itemName, int quantity) {
-        StringBuilder sb = new StringBuilder();   // <-- collects output for GUI
+        StringBuilder sb = new StringBuilder();
         boolean removed = false;
 
         outerLoop: // label for breaking out of all loops once removal is done
@@ -94,7 +95,7 @@ public class SupermarketAPI {
                                 // ^ same thing as before, traverse through the classes
                                 Node<GoodItems> prev = null; // < used for removal of item
                                 for (Node<GoodItems> ITEM = SHELF.data.getItems().head; ITEM != null; ITEM = ITEM.next) {
-                                    if (ITEM.data.getDescription().equals(itemName)) {
+                                    if (ITEM.data.getItemName().equals(itemName)) {
                                         if (ITEM.data.getQuantity() > quantity) {
                                             ITEM.data.setQuantity(ITEM.data.getQuantity() - quantity);
                                             // here is for reducing the quantity of the item ^
@@ -150,24 +151,29 @@ public class SupermarketAPI {
         return sb.toString(); //
     }
 
+    //by far the hardest thing here, had to learn tokenization
     public String smartAdd(GoodItems smartItem) {
-        //turn the name + description into lowercase words for matching
+
         String COMBINEDTEXT = (smartItem.getItemName() + " " + smartItem.getDescription()).toLowerCase();
         LinkedList<String> TOKENS = new LinkedList<>();
         for (String word : COMBINEDTEXT.split("\\s+")) {
             TOKENS.add(word);
         }
+
         StringBuilder sb = new StringBuilder();
-        //identical items to put with
+        boolean NAME_DESCRIPTION = false;
+        boolean TEMPERATURE = false;
+        boolean addedByFallback = false;
+
+        // identical items to put with
         outerLoop: // label to exit all loops once item is added
         for (Node<FloorArea> F = floorAreas.head; F != null; F = F.next) {
             for (Node<Aisle> A = F.data.getAisles().head; A != null; A = A.next) {
                 for (Node<Shelf> S = A.data.getShelves().head; S != null; S = S.next) {
                     for (Node<GoodItems> I = S.data.getItems().head; I != null; I = I.next) {
-                        //turn existing name + description lowercase (validation)
-                        String existingCombined =
-                                (I.data.getItemName() + " " + I.data.getDescription()).toLowerCase();
-                        //tokenises the words
+                        // turn existing name + description lowercase (validation)
+                        String existingCombined = (I.data.getItemName() + " " + I.data.getDescription()).toLowerCase();
+                        // tokenises the words
                         LinkedList<String> TOKENSEXISTING = new LinkedList<>();
                         for (String word : existingCombined.split("\\s+")) {
                             TOKENSEXISTING.add(word);
@@ -183,39 +189,57 @@ public class SupermarketAPI {
                             }
                             if (matching) break;
                         }
+
+
+                        //ADDITION/MERGED USING NAME
                         // add new item to the same shelf if matching
                         if (matching) {
-                            S.data.addItem(smartItem); // add as SEPARATE item
-                            sb.append("Item smartly added to Shelf ")
-                                    .append(S.data.getShelfNumber())
-                                    .append(" based on matching name/description.\n");
-                            break outerLoop;
+                            //merge quantity only if the exact name matches
+                            if (I.data.getItemName().equals(smartItem.getItemName())) {
+                                I.data.setQuantity(I.data.getQuantity() + smartItem.getQuantity());
+                                sb.append("This item '").append(I.data.getItemName())
+                                        .append("' has their quantity merged").append("\n");
+                            } else {
+                                //add as a NEW SEPARATE ITEM on the same shelf
+                                S.data.addItem(smartItem);
+                                sb.append("Item smartly added to Shelf ").append(S.data.getShelfNumber());
+                            }
+                            NAME_DESCRIPTION = true;
+                            break outerLoop; //exit all loops after adding
                         }
                     }
                 }
             }
         }
-        // identical temperature to put with
-        outerTemp:
-        for (Node<FloorArea> F = floorAreas.head; F != null; F = F.next) {
-            for (Node<Aisle> A = F.data.getAisles().head; A != null; A = A.next) {
-                if (A.data.getTemperature().equals(smartItem.getStorageTemperature())
-                        && A.data.getShelves().head != null) {
-                    A.data.getShelves().head.data.addItem(smartItem);
-                    sb.append("Item smartly added based on temperature\n");
-                    break outerTemp;
+        //identical temperature to put with
+        if (!NAME_DESCRIPTION) {
+            outerTemp:
+            for (Node<FloorArea> F = floorAreas.head; F != null; F = F.next) {
+                for (Node<Aisle> A = F.data.getAisles().head; A != null; A = A.next) {
+                    if (A.data.getTemperature().equals(smartItem.getStorageTemperature())
+                            && A.data.getShelves().head != null) {
+                        A.data.getShelves().head.data.addItem(smartItem);
+                        sb.append("Item smartly added based on temperature to Shelf ").append(A.data.getShelves().head.data.getShelfNumber()).append("\n");
+                        TEMPERATURE = true;
+                        break outerTemp;
+                    }
                 }
             }
         }
-        // any place it belongs, loops through everything and places it at the head
-        if (floorAreas.head != null &&
-                floorAreas.head.data.getAisles().head != null &&
-                floorAreas.head.data.getAisles().head.data.getShelves().head != null) {
-            floorAreas.head.data.getAisles().head.data.getShelves().head.data.addItem(smartItem);
-            sb.append("Item smartly added to first available shelf\n");
+        //any place it belongs
+        if (!NAME_DESCRIPTION && !TEMPERATURE) {
+            if (floorAreas.head != null &&
+                    floorAreas.head.data.getAisles().head != null &&
+                    floorAreas.head.data.getAisles().head.data.getShelves().head != null) {
+                floorAreas.head.data.getAisles().head.data.getShelves().head.data.addItem(smartItem);
+                sb.append("Item smartly added to first available shelf\n");
+                addedByFallback = true;
+            }
         }
         return sb.toString();
     }
+
+
 
     // from last year programming XStream library
     public void load() throws Exception {

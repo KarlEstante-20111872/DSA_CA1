@@ -7,8 +7,6 @@ public class LinkedList<T> {
     public LinkedList() {
         this.head = null;
     }
-    //this class will be full of comments to understand linkedlists and its
-    //functions within the project for guidance towards the interview and future use.
 
     public void add(T value) {
         Node<T> newNode = new Node<>(value);
@@ -26,39 +24,35 @@ public class LinkedList<T> {
     }
 
     //deletion method
-    public boolean deleteByValue(T value) {
+    public boolean deleteByValue(T boop) {
         if (head == null) {
-            System.out.println("List is empty.");
+            System.out.println("Empty List");
             return false;
         }
-        if (head.data.equals(value)) {
+        if (head.data.equals(boop)) {
             head = head.next;
-            System.out.println("Removed: " + value);
+            System.out.println("Removed: " + boop);
             return true;
-        }
-        Node<T> removal = head;
-        while (removal.next != null) {
-            if (removal.next.data.equals(value)) {
-                removal.next = removal.next.next;
-                System.out.println("Removed: " + value);
+        }// the actual deleting below
+        Node<T> THE_REMOVAL = head;
+        while (THE_REMOVAL.next != null) {
+            if (THE_REMOVAL.next.data.equals(boop)) {
+                THE_REMOVAL.next = THE_REMOVAL.next.next;
                 return true;
             }
-            removal = removal.next;}
+            THE_REMOVAL = THE_REMOVAL.next;}
         return false;
     }
 
-    public boolean searchItem(T data) {
+    public boolean searchItem(T BoopV2) {
         Node<T> poop = head; //starts at the head
         while (poop != null) {
-            if (poop.data.equals(data)) {//compare using .equals
-                System.out.println("Item found");
+            if (poop.data.equals(BoopV2)) {//compare using .equals
                 return true;//if found, returns true
             }
             poop = poop.next;
         }
-
-        System.out.println("Item not found in the list.");
-        return false; // reached end without finding
+        return false;
     }
 
     //prints the whole linkedlist

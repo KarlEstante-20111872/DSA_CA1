@@ -44,10 +44,10 @@ public class Shelf {
     public String viewStock() {
         StringBuilder sb = new StringBuilder();
         sb.append("Shelf ").append(shelfNumber).append(":\n");
-        for (Node<GoodItems> item = items.head; item != null; item = item.next) {
-            sb.append("Item: ").append(item.data.getDescription())
-                    .append(" with a quantity of ").append(item.data.getQuantity())
-                    .append(" and the price of: €").append(item.data.getUnitPrice()).append("\n");
+        for (Node<GoodItems> ITEM = items.head; ITEM != null; ITEM = ITEM.next) {
+            sb.append("Item: ").append(ITEM.data.getItemName())
+                    .append(" with a quantity of ").append(ITEM.data.getQuantity())
+                    .append(" and the price of: €").append(ITEM.data.getUnitPrice()).append("\n");
         }
         sb.append("Shelf ").append(shelfNumber)
                 .append(" has a total goods value of: €").append(getTotalValue()).append("\n");

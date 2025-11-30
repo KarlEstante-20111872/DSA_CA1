@@ -67,10 +67,6 @@ public class Aisle {
         return shelves;
     }
 
-    public void setShelves(LinkedList<Shelf> shelves) {
-        this.shelves = shelves;
-    }
-
     public double getTotalValue() {
         double totaLL = 0;
         for (Node<Shelf> shelf = shelves.head; shelf != null; shelf = shelf.next) {

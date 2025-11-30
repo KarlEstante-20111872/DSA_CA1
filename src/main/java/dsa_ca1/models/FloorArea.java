@@ -23,10 +23,6 @@ public class FloorArea {
         return floor;
     }
 
-    public void setFloor(int floor) {
-        this.floor = floor;
-    }
-
     public void addAisle(Aisle aisle) {
         aisles.add(aisle);
     }
@@ -47,9 +43,9 @@ public class FloorArea {
         return aisles;
     }
 
-    public Aisle getAisleByName(String name) {
+    public Aisle getAisleByName(String NAME) {
         for (Node<Aisle> a = aisles.head; a != null; a = a.next) {
-            if (a.data.getAisleName().equals(name)) return a.data;
+            if (a.data.getAisleName().equals(NAME)) return a.data;
         }
         return null;
     }

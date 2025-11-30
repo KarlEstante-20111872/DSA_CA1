@@ -125,7 +125,7 @@
                             <Label text="Remove Item"/>
                             <TextField fx:id="removeItemNameField" promptText="Item name"/>
                             <TextField fx:id="removeItemQuantityField" promptText="Quantity"/>
-                            <TextField fx:id="removeFloorField" promptText="Floor"/>
+                            <TextField fx:id="removeFloorField" promptText="Floor Name"/>
                             <TextField fx:id="removeAisleField" promptText="Aisle"/>
                             <TextField fx:id="removeShelfField" promptText="Shelf"/>
                             <Button fx:id="removeItemButton" text="Remove Item"/>
