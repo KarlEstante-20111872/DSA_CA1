@@ -179,7 +179,7 @@ public class SupermarketAPI {
                         for (String word : existingCombined.split("\\s+")) {
                             TOKENSEXISTING.add(word);
                         }
-                        //compares each word with the new words
+                        //compares each existing words with the new words
                         boolean matching = false;
                         for (Node<String> NEW = TOKENS.head; NEW != null; NEW = NEW.next) {
                             for (Node<String> EXISTING = TOKENSEXISTING.head; EXISTING != null; EXISTING = EXISTING.next) {
