@@ -154,31 +154,32 @@ public class SupermarketAPI {
     //by far the hardest thing here, had to learn tokenization
     public String smartAdd(GoodItems smartItem) {
 
+        //Tokenising the new words and the flags
         String COMBINEDTEXT = (smartItem.getItemName() + " " + smartItem.getDescription()).toLowerCase();
         LinkedList<String> TOKENS = new LinkedList<>();
-        for (String word : COMBINEDTEXT.split("\\s+")) {
+        for (String word : COMBINEDTEXT.split("\\s+")) { // gets rid of white space in case it breaks
             TOKENS.add(word);
         }
 
         StringBuilder sb = new StringBuilder();
         boolean NAME_DESCRIPTION = false;
         boolean TEMPERATURE = false;
-        boolean addedByFallback = false;
+        boolean randomAisle = false;
 
-        // identical items to put with
-        outerLoop: // label to exit all loops once item is added
+        //looks at every class for every existing item
+        outerLoop:
         for (Node<FloorArea> F = floorAreas.head; F != null; F = F.next) {
             for (Node<Aisle> A = F.data.getAisles().head; A != null; A = A.next) {
                 for (Node<Shelf> S = A.data.getShelves().head; S != null; S = S.next) {
                     for (Node<GoodItems> I = S.data.getItems().head; I != null; I = I.next) {
-                        // turn existing name + description lowercase (validation)
+
+                        //it tokenises the existing words
                         String existingCombined = (I.data.getItemName() + " " + I.data.getDescription()).toLowerCase();
-                        // tokenises the words
                         LinkedList<String> TOKENSEXISTING = new LinkedList<>();
                         for (String word : existingCombined.split("\\s+")) {
                             TOKENSEXISTING.add(word);
                         }
-                        // compares the newword to the existing words
+                        //compares each word with the new words
                         boolean matching = false;
                         for (Node<String> NEW = TOKENS.head; NEW != null; NEW = NEW.next) {
                             for (Node<String> EXISTING = TOKENSEXISTING.head; EXISTING != null; EXISTING = EXISTING.next) {
@@ -192,15 +193,14 @@ public class SupermarketAPI {
 
 
                         //ADDITION/MERGED USING NAME
-                        // add new item to the same shelf if matching
+                        //if it matches the name with another name exactly, it merges quantities
                         if (matching) {
-                            //merge quantity only if the exact name matches
                             if (I.data.getItemName().equals(smartItem.getItemName())) {
                                 I.data.setQuantity(I.data.getQuantity() + smartItem.getQuantity());
                                 sb.append("This item '").append(I.data.getItemName())
                                         .append("' has their quantity merged").append("\n");
                             } else {
-                                //add as a NEW SEPARATE ITEM on the same shelf
+                                //this adds the smart item into the shelf with another item similar based on description/name
                                 S.data.addItem(smartItem);
                                 sb.append("Item smartly added to Shelf ").append(S.data.getShelfNumber());
                             }
@@ -211,11 +211,12 @@ public class SupermarketAPI {
                 }
             }
         }
-        //identical temperature to put with
+        //IDENTICAL TEMPERATURE
         if (!NAME_DESCRIPTION) {
             outerTemp:
             for (Node<FloorArea> F = floorAreas.head; F != null; F = F.next) {
                 for (Node<Aisle> A = F.data.getAisles().head; A != null; A = A.next) {
+                    //if an existing items temp equals the new temp, it is stored with each other and is added
                     if (A.data.getTemperature().equals(smartItem.getStorageTemperature())
                             && A.data.getShelves().head != null) {
                         A.data.getShelves().head.data.addItem(smartItem);
@@ -226,14 +227,14 @@ public class SupermarketAPI {
                 }
             }
         }
-        //any place it belongs
+        //if none of the above two methods work, it is placed at the very first floor, aisle and shelf.
         if (!NAME_DESCRIPTION && !TEMPERATURE) {
             if (floorAreas.head != null &&
                     floorAreas.head.data.getAisles().head != null &&
                     floorAreas.head.data.getAisles().head.data.getShelves().head != null) {
                 floorAreas.head.data.getAisles().head.data.getShelves().head.data.addItem(smartItem);
                 sb.append("Item smartly added to first available shelf\n");
-                addedByFallback = true;
+                randomAisle = true;
             }
         }
         return sb.toString();
