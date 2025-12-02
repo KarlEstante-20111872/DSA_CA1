@@ -95,17 +95,18 @@ public class SupermarketAPI {
                                 // ^ same thing as before, traverse through the classes
                                 Node<GoodItems> prev = null; // < used for removal of item
                                 for (Node<GoodItems> ITEM = SHELF.data.getItems().head; ITEM != null; ITEM = ITEM.next) {
+
+                                    //if the name equals itemName, we can reduce the quantity of it else we can use another if else
+                                    // to either take out the head of the list or the one we want to delete
                                     if (ITEM.data.getItemName().equals(itemName)) {
                                         if (ITEM.data.getQuantity() > quantity) {
                                             ITEM.data.setQuantity(ITEM.data.getQuantity() - quantity);
-                                            // here is for reducing the quantity of the item ^
                                         } else {
                                             if (prev == null) {
                                                 SHELF.data.getItems().head = ITEM.next; // removing the head
                                             } else {
-                                                prev.next = ITEM.next; // we link the node before the removed one to the one
+                                                prev.next = ITEM.next;
                                             }
-                                            // after it essentially cutting it out
                                         }
                                         removed = true;
                                         // ^ here is the ACTUAL removal via prev like the linked list
@@ -151,6 +152,9 @@ public class SupermarketAPI {
         return sb.toString(); //
     }
 
+
+
+
     //by far the hardest thing here, had to learn tokenization
     public String smartAdd(GoodItems smartItem) {
 
@@ -171,10 +175,10 @@ public class SupermarketAPI {
         for (Node<FloorArea> F = floorAreas.head; F != null; F = F.next) {
             for (Node<Aisle> A = F.data.getAisles().head; A != null; A = A.next) {
                 for (Node<Shelf> S = A.data.getShelves().head; S != null; S = S.next) {
-                    for (Node<GoodItems> I = S.data.getItems().head; I != null; I = I.next) {
+                    for (Node<GoodItems> Item = S.data.getItems().head; Item != null; Item = Item.next) {
 
                         //it tokenises the existing words
-                        String existingCombined = (I.data.getItemName() + " " + I.data.getDescription()).toLowerCase();
+                        String existingCombined = (Item.data.getItemName() + " " + Item.data.getDescription()).toLowerCase();
                         LinkedList<String> TOKENSEXISTING = new LinkedList<>();
                         for (String word : existingCombined.split("\\s+")) {
                             TOKENSEXISTING.add(word);
@@ -195,9 +199,9 @@ public class SupermarketAPI {
                         //ADDITION/MERGED USING NAME
                         //if it matches the name with another name exactly, it merges quantities
                         if (matching) {
-                            if (I.data.getItemName().equals(smartItem.getItemName())) {
-                                I.data.setQuantity(I.data.getQuantity() + smartItem.getQuantity());
-                                sb.append("This item '").append(I.data.getItemName())
+                            if (Item.data.getItemName().equals(smartItem.getItemName())) {
+                                Item.data.setQuantity(Item.data.getQuantity() + smartItem.getQuantity());
+                                sb.append("This item '").append(Item.data.getItemName())
                                         .append("' has their quantity merged").append("\n");
                             } else {
                                 //this adds the smart item into the shelf with another item similar based on description/name
