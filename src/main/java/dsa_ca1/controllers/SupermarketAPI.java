@@ -53,11 +53,13 @@ public class SupermarketAPI {
     public String searchGoodItem(String name) {
         boolean found = false;
         StringBuilder sb = new StringBuilder();
-
+        //iterates through list
         for (Node<FloorArea> FLOOR = floorAreas.head; FLOOR != null; FLOOR = FLOOR.next) {
             for (Node<Aisle> AISLE = FLOOR.data.getAisles().head; AISLE != null; AISLE = AISLE.next) {
                 for (Node<Shelf> SHELF = AISLE.data.getShelves().head; SHELF != null; SHELF = SHELF.next) {
                     for (Node<GoodItems> ITEM = SHELF.data.getItems().head; ITEM != null; ITEM = ITEM.next) {
+
+                        //if the name inputted equals an item name, return the items whereabouts
                         if (ITEM.data.getItemName().toLowerCase().contains(name.toLowerCase()))
                         {
                             found = true;
